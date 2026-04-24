@@ -34,3 +34,5 @@ class Controller:
             "transport": self.model.count_transport(),
             "avg_distance": self.model.avg_distance()
         }
+        
+        
