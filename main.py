@@ -7,9 +7,9 @@ from main_view import mainView
 if __name__ == "__main__":
     root = tk.Tk()
 
-    #model = Model()
-    #controller = Controller(model)
-    view = mainView(root)
+    model = Model()
+    controller = Controller(model)
+    view = mainView(root, controller)
 
     root.mainloop()
     
