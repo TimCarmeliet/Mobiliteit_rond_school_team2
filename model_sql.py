@@ -139,3 +139,61 @@ def delete_transport(transport_id):
 
     conn.commit()
     conn.close()
+    
+    
+# MOBILITY LOG
+
+# registreert een nieuwe verplaatsing voor een student
+def add_mobility_log(student_id, transport_id, datum):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('''INSERT INTO Mobility_log (student_id, transport_id, datum)
+                      VALUES (?, ?, ?)''', (student_id, transport_id, datum))
+
+    conn.commit()
+    conn.close()
+
+# geeft alle verplaatsingen terug
+def get_all_mobility_logs():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT * FROM Mobility_log')
+    logs = cursor.fetchall()
+
+    conn.close()
+    return logs
+
+# geeft alle verplaatsingen van één student terug
+def get_logs_by_student(student_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT * FROM Mobility_log WHERE student_id = ?', (student_id,))
+    logs = cursor.fetchall()
+
+    conn.close()
+    return logs
+
+# past een bestaande verplaatsing aan
+def update_mobility_log(log_id, student_id, transport_id, datum):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('''UPDATE Mobility_log
+                      SET student_id = ?, transport_id = ?, datum = ?
+                      WHERE id = ?''', (student_id, transport_id, datum, log_id))
+
+    conn.commit()
+    conn.close()
+
+# verwijdert een verplaatsing
+def delete_mobility_log(log_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('DELETE FROM Mobility_log WHERE id = ?', (log_id,))
+
+    conn.commit()
+    conn.close()
