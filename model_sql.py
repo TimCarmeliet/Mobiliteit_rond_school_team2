@@ -27,7 +27,7 @@ def init_db():
         type TEXT NOT NULL
     )''')
 
-    # tabel voor verplaatsingen, gelinkt aan student en transport
+    # tabel voor verplaatsingen gelinkt aan student en transport
     cursor.execute('''CREATE TABLE IF NOT EXISTS Mobility_log (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         student_id INTEGER NOT NULL,
@@ -36,6 +36,68 @@ def init_db():
         FOREIGN KEY (student_id) REFERENCES Students(id),
         FOREIGN KEY (transport_id) REFERENCES Transport(id)
     )''')
+
+    conn.commit()
+    conn.close()
+
+
+# STUDENTS
+
+# voegt een nieuwe student toe
+def add_student(naam, klas, afstand):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('''INSERT INTO Students (naam, klas, afstand)
+                      VALUES (?, ?, ?)''', (naam, klas, afstand))
+
+    conn.commit()
+    conn.close()
+
+# geeft alle studenten terug
+def get_all_students():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT * FROM Students')
+    students = cursor.fetchall()
+
+    conn.close()
+    return students
+
+# geeft één student terug op basis van id
+def get_student_by_id(student_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT * FROM Students WHERE id = ?', (student_id,))
+    student = cursor.fetchone()
+
+    conn.close()
+    return student
+
+# past gegevens van een bestaande student aan
+def update_student(student_id, naam, klas, afstand):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('''UPDATE Students
+                      SET naam = ?, klas = ?, afstand = ?
+                      WHERE id = ?''', (naam, klas, afstand, student_id))
+
+    conn.commit()
+    conn.close()
+
+# verwijdert een student en zijn bijhorende verplaatsingen
+def delete_student(student_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # verwijder eerst de mobility logs van deze student
+    cursor.execute('DELETE FROM Mobility_log WHERE student_id = ?', (student_id,))
+
+    # verwijder dan pas de student zelf
+    cursor.execute('DELETE FROM Students WHERE id = ?', (student_id,))
 
     conn.commit()
     conn.close()
