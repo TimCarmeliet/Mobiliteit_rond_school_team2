@@ -101,3 +101,41 @@ def delete_student(student_id):
 
     conn.commit()
     conn.close()
+ 
+    
+# TRANSPORT
+
+# voegt een nieuw vervoersmiddel toe
+def add_transport(type):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('INSERT INTO Transport (type) VALUES (?)', (type,))
+
+    conn.commit()
+    conn.close()
+
+# geeft alle vervoersmiddelen terug
+def get_all_transport():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT * FROM Transport')
+    transport = cursor.fetchall()
+
+    conn.close()
+    return transport
+
+# verwijdert een vervoersmiddel en zijn bijhorende verplaatsingen
+def delete_transport(transport_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # verwijder eerst de mobility logs met dit transport
+    cursor.execute('DELETE FROM Mobility_log WHERE transport_id = ?', (transport_id,))
+
+    # verwijder dan pas het vervoersmiddel zelf
+    cursor.execute('DELETE FROM Transport WHERE id = ?', (transport_id,))
+
+    conn.commit()
+    conn.close()
