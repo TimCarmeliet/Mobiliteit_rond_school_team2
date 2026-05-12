@@ -30,6 +30,14 @@ class Controller:
     def get_students(self):
         return self.model.get_students()
 
+
+    def get_all_students(self):
+        rows = self.model.get_students()
+        return [(r[0], r[1], r[2], f"{r[3]} km") for r in rows]
+
+    def update_student(self, student_id, naam, klas, afstand):
+        self.model.update_student(student_id, naam, klas, float(afstand))
+
     def delete_student(self, student_id):
 
         # controle of student bestaat
@@ -62,6 +70,9 @@ class Controller:
     def get_transport(self):
         return self.model.get_transport()
 
+    def delete_transport(self, transport_id):
+        self.model.delete_transport(transport_id)
+
     # MOBILITY
 
     def add_mobility(self, student_id, transport_id, datum):
@@ -93,94 +104,6 @@ class Controller:
         classes = self.model.students_per_class()
 
         return {
-            "transport": transport_data,
-            "avg_distance": avg_distance,
-            "classes": classes
+            "transport": self.model.count_transport(),
+            "avg_distance": self.model.avg_distance()
         }
-
-    # EXTRA ANALYSE 1
-    # Student met grootste afstand
-
-    def longest_distance_student(self):
-
-        students = self.model.get_students()
-
-        if not students:
-            return None
-
-        longest = max(students, key=lambda s: s[3])
-
-        return longest
-
-    # EXTRA ANALYSE 2
-    # Percentage vervoersmiddelen
-
-    def transport_percentages(self):
-
-        transport_data = self.model.count_transport()
-
-        totaal = 0
-
-        for item in transport_data:
-            totaal += item[1]
-
-        percentages = []
-
-        for item in transport_data:
-
-            transport_id = item[0]
-            aantal = item[1]
-
-            if totaal > 0:
-                percentage = round((aantal / totaal) * 100, 2)
-            else:
-                percentage = 0
-
-            percentages.append((transport_id, percentage))
-
-        return percentages
-
-    # EXTRA ANALYSE 3
-    # Filter studenten per klas
-
-    def students_per_class_filter(self, klas_naam):
-
-        students = self.model.get_students()
-
-        filtered = []
-
-        for s in students:
-
-            if s[2] == klas_naam:
-                filtered.append(s)
-
-        return filtered
-
-    # EXTRA ANALYSE 4
-    # Gemiddelde afstand per klas
-
-    def average_distance_per_class(self):
-
-        students = self.model.get_students()
-
-        klas_data = {}
-
-        for s in students:
-
-            klas = s[2]
-            afstand = s[3]
-
-            if klas not in klas_data:
-                klas_data[klas] = []
-
-            klas_data[klas].append(afstand)
-
-        result = []
-
-        for klas in klas_data:
-
-            gemiddelde = sum(klas_data[klas]) / len(klas_data[klas])
-
-            result.append((klas, round(gemiddelde, 2)))
-
-        return result
