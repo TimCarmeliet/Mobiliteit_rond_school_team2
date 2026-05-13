@@ -2,7 +2,7 @@ import sqlite3
 
 class Model:
     def __init__(self):
-        self.conn = sqlite3.connect("database.db")
+        self.conn = sqlite3.connect("mobility.db")
         self.create_tables()
 
     def create_tables(self):
@@ -90,3 +90,18 @@ class Model:
         return self.conn.execute(
             "SELECT AVG(afstand) FROM Students"
         ).fetchone()[0] 
+    
+    def fetch_all(self, query, params=()):
+        cursor = self.conn.cursor()
+        cursor.execute(query, params)
+        return cursor.fetchall()
+
+    def fetch_one(self, query, params=()):
+        cursor = self.conn.cursor()
+        cursor.execute(query, params)
+        return cursor.fetchone()
+
+    def execute(self, query, params=()):
+        cursor = self.conn.cursor()
+        cursor.execute(query, params)
+        self.conn.commit()

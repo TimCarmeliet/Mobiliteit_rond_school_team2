@@ -10,6 +10,14 @@ class Controller:
     def get_students(self):
         return self.model.get_students()
 
+
+    def get_all_students(self):
+        rows = self.model.get_students()
+        return [(r[0], r[1], r[2], f"{r[3]} km") for r in rows]
+
+    def update_student(self, student_id, naam, klas, afstand):
+        self.model.update_student(student_id, naam, klas, float(afstand))
+
     def delete_student(self, student_id):
         self.model.delete_student(student_id)
 
@@ -20,6 +28,9 @@ class Controller:
 
     def get_transport(self):
         return self.model.get_transport()
+
+    def delete_transport(self, transport_id):
+        self.model.delete_transport(transport_id)
 
     # MOBILITY
     def add_mobility(self, student_id, transport_id, datum):
@@ -34,5 +45,3 @@ class Controller:
             "transport": self.model.count_transport(),
             "avg_distance": self.model.avg_distance()
         }
-        
-        
