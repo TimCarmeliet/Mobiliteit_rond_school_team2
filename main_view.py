@@ -194,3 +194,34 @@ class mainView:
         self.analyse_content.pack(fill="both", expand=True)
 
         tk.Label(self.analyse_content, text="Analyse pagina", font=("Arial", 24)).pack(pady=20)
+
+
+    def dashboard(self):
+
+        self.clear_content()
+        self.dashboard_content = tk.Frame(self.root, bg="#eee")
+        self.dashboard_content.pack(fill="both", expand=True)
+
+        tk.Label(
+            self.dashboard_content,
+            text="Dashboard",
+            font=("Arial", 24, "bold"),
+            bg="#eee"
+        ).pack(pady=20)
+
+        # voorbeeld data transportmiddelen
+        transport_labels = ["Fiets", "Bus", "Auto", "Te voet", "Trein"]
+        aantallen = [15, 10, 7, 5, 3]
+
+        # maak diagram
+        fig, ax = plt.subplots(figsize=(6, 4))
+        ax.bar(transport_labels, aantallen)
+
+        ax.set_title("Transportmiddelen van leerlingen")
+        ax.set_xlabel("Transportmiddel")
+        ax.set_ylabel("Aantal leerlingen")
+
+        # diagram tonen in tkinter
+        canvas = FigureCanvasTkAgg(fig, master=self.dashboard_content)
+        canvas.draw()
+        canvas.get_tk_widget().pack(pady=20)
