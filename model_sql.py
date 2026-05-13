@@ -141,7 +141,7 @@ def delete_transport(transport_id):
     conn.close()
     
     
-# MOBILITY LOG
+# MOBILITY LOG 
 
 # registreert een nieuwe verplaatsing voor een student
 def add_mobility_log(student_id, transport_id, datum):
@@ -197,3 +197,4 @@ def delete_mobility_log(log_id):
 
     conn.commit()
     conn.close()
+    #verwijdert een verplaat
