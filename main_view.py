@@ -132,6 +132,18 @@ class mainView:
                 return
             self.vervoer()
 
+        def vervoer_aanpassen():
+            if not geselecteerde_transport_id.get():
+                messagebox.showwarning("Vervoer", "Selecteer eerst een transporttype uit de tabel.")
+                return
+
+            transport_type = transportTypeInput.get().strip()
+            melding = self.controller.update_transport(geselecteerde_transport_id.get(), transport_type)
+            if melding and melding.startswith("ERROR"):
+                messagebox.showwarning("Vervoer", melding.replace("ERROR: ", ""))
+                return
+            self.vervoer()
+
         def vervoer_verwijderen():
             if not geselecteerde_transport_id.get():
                 messagebox.showwarning("Vervoer", "Selecteer eerst een transporttype uit de tabel.")
@@ -145,18 +157,25 @@ class mainView:
 
         knopstijl = {"fg": "white","activeforeground": "white","disabledforeground": "white","bd": 0,"padx": 12,"pady": 8,"font": ("Arial", 9, "bold"),"cursor": "hand2",}
         tk.Button(knoppen, text="Toevoegen", command=vervoer_toevoegen, bg=blauw, activebackground=blauw, **knopstijl).pack(side="left", padx=(0, 10))
+        aanpassen_knop = tk.Button(knoppen, text="Aanpassen", command=vervoer_aanpassen, **knopstijl)
+        aanpassen_knop.pack(side="left", padx=(0, 10))
         verwijderen_knop = tk.Button(knoppen, text="Verwijderen", command=vervoer_verwijderen, **knopstijl)
         verwijderen_knop.pack(side="left")
 
+        aanpassen_tooltip = Tooltip(aanpassen_knop, "Klik eerst op een transporttype in het overzicht om te kunnen aanpassen.")
         verwijderen_tooltip = Tooltip(verwijderen_knop, "Klik eerst op een transporttype in het overzicht om te kunnen verwijderen.")
 
         def update_vervoer_knoppen():
             heeft_selectie = bool(geselecteerde_transport_id.get())
             if heeft_selectie:
+                aanpassen_knop.config(bg=groen, activebackground=groen, cursor="hand2")
                 verwijderen_knop.config(bg=rood, activebackground=rood, cursor="hand2")
+                aanpassen_tooltip.set_actief(False)
                 verwijderen_tooltip.set_actief(False)
             else:
+                aanpassen_knop.config(bg=licht_grijs, activebackground=licht_grijs, cursor="hand2")
                 verwijderen_knop.config(bg=licht_grijs, activebackground=licht_grijs, cursor="hand2")
+                aanpassen_tooltip.set_actief(True)
                 verwijderen_tooltip.set_actief(True)
 
         update_vervoer_knoppen()

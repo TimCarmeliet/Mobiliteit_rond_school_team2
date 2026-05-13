@@ -65,9 +65,22 @@ class Model:
     def get_transport(self):
         return self.conn.execute("SELECT * FROM Transport").fetchall()
 
+    def update_transport(self, transport_id, t):
+        self.conn.execute(
+            "UPDATE Transport SET type=? WHERE id=?",
+            (t, transport_id)
+        )
+        self.conn.commit()
+
     def delete_transport(self, transport_id):
         self.conn.execute("DELETE FROM Transport WHERE id=?", (transport_id,))
         self.conn.commit()
+
+    def transport_in_use(self, transport_id):
+        return self.conn.execute(
+            "SELECT COUNT(*) FROM Mobility_log WHERE transport_id=?",
+            (transport_id,)
+        ).fetchone()[0]
 
     # MOBILITY
     def add_mobility(self, student_id, transport_id, datum):

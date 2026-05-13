@@ -17,6 +17,15 @@ class Controller:
     def _transport_exists(self, transport_id):
         return any(transport[0] == transport_id for transport in self.model.get_transport())
 
+    def _transport_type_exists(self, transport_type, ignore_id=None):
+        transport_type = transport_type.lower()
+        for transport in self.model.get_transport():
+            if ignore_id is not None and transport[0] == ignore_id:
+                continue
+            if transport[1].lower() == transport_type:
+                return True
+        return False
+
     # STUDENTS
     def add_student(self, naam, klas, afstand):
         if not naam or not klas or not afstand:
@@ -75,14 +84,38 @@ class Controller:
 
     # TRANSPORT
     def add_transport(self, transport_type):
+        transport_type = transport_type.strip() if transport_type else ""
+
         if not transport_type:
             return "ERROR: Geef een transporttype op"
+
+        if self._transport_type_exists(transport_type):
+            return "ERROR: Dit transporttype bestaat al"
 
         self.model.add_transport(transport_type)
         return "Transport toegevoegd"
 
     def get_transport(self):
         return self.model.get_transport()
+
+    def update_transport(self, transport_id, transport_type):
+        transport_id = self._to_int(transport_id, "Transport id")
+        if isinstance(transport_id, str):
+            return transport_id
+
+        if not self._transport_exists(transport_id):
+            return "ERROR: Transport bestaat niet"
+
+        transport_type = transport_type.strip() if transport_type else ""
+
+        if not transport_type:
+            return "ERROR: Geef een transporttype op"
+
+        if self._transport_type_exists(transport_type, ignore_id=transport_id):
+            return "ERROR: Dit transporttype bestaat al"
+
+        self.model.update_transport(transport_id, transport_type)
+        return "Transport aangepast"
 
     def delete_transport(self, transport_id):
         transport_id = self._to_int(transport_id, "Transport id")
@@ -91,6 +124,9 @@ class Controller:
 
         if not self._transport_exists(transport_id):
             return "ERROR: Transport bestaat niet"
+
+        if self.model.transport_in_use(transport_id) > 0:
+            return "ERROR: Dit transporttype wordt nog gebruikt bij verplaatsingen"
 
         self.model.delete_transport(transport_id)
         return "Transport verwijderd"
