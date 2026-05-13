@@ -8,6 +8,52 @@ rood = "#b3261e"
 groen = "#2f7d32"
 grijs = "#eee"
 donker_grijs = "#333333"
+licht_grijs = "#d8d8d8"
+
+
+class Tooltip:
+    def __init__(self, widget, tekst):
+        self.widget = widget
+        self.tekst = tekst
+        self.venster = None
+        self.actief = True
+        widget.bind("<Enter>", self.toon)
+        widget.bind("<Leave>", self.verberg)
+
+    def toon(self, event=None):
+        if self.venster or not self.actief:
+            return
+
+        x = self.widget.winfo_rootx() + 10
+        y = self.widget.winfo_rooty() + self.widget.winfo_height() + 8
+        self.venster = tk.Toplevel(self.widget)
+        self.venster.wm_overrideredirect(True)
+        self.venster.wm_geometry(f"+{x}+{y}")
+
+        label = tk.Label(
+            self.venster,
+            text=self.tekst,
+            bg="#222222",
+            fg="white",
+            padx=8,
+            pady=5,
+            font=("Arial", 9),
+            relief="solid",
+            bd=1,
+        )
+        label.pack()
+
+    def verberg(self, event=None):
+        if self.venster:
+            self.venster.destroy()
+            self.venster = None
+
+    def set_actief(self, actief):
+        self.actief = actief
+        if not actief:
+            self.verberg()
+
+
 class mainView:
 
     def __init__(self, root, controller):
@@ -47,12 +93,96 @@ class mainView:
         self.analyse_content.forget()
 
     def vervoer(self):
-        
         self.clear_content()
         self.vervoer_content = tk.Frame(self.root, bg="#eee")
         self.vervoer_content.pack(fill="both", expand=True)
 
-        tk.Label(self.vervoer_content, text="Vervoer pagina", font=("Arial", 24)).pack(pady=20)
+        data = self.controller.get_transport()
+        geselecteerde_transport_id = tk.StringVar()
+
+        # frame vervoer bewerken
+        frame = maak_kader(self.vervoer_content, titel="Vervoer bewerken", verticalSpace=20, horizontalSpace=20, header_kleur=blauw)
+        frame.pack_configure(side="left", fill="y", padx=(20, 10), pady=20, anchor="nw")
+
+        form = tk.Frame(frame, bg="white", padx=18, pady=16)
+        form.pack(fill="x")
+
+        label_stijl = {"bg": "white", "fg": donker_grijs, "font": ("Arial", 10, "bold"), "anchor": "w"}
+        input_stijl = {"width": 30,"font": ("Arial", 10),"relief": "solid","bd": 1,"highlightthickness": 1,"highlightbackground": "#d0d7de","highlightcolor": blauw,"insertbackground": donker_grijs,}
+
+        tk.Label(form, text="Transporttype", **label_stijl).grid(row=0, column=0, sticky="w")
+        transportTypeInput = tk.Entry(form, **input_stijl)
+        transportTypeInput.grid(row=1, column=0, sticky="ew", pady=(3, 14))
+        form.columnconfigure(0, weight=1)
+
+        knoppen = tk.Frame(form, bg="white")
+        knoppen.grid(row=2, column=0, sticky="ew")
+
+        def vervoer_leegmaken():
+            geselecteerde_transport_id.set("")
+            transportTypeInput.delete(0, "end")
+            tabel.selection_remove(tabel.selection())
+            update_vervoer_knoppen()
+
+        def vervoer_toevoegen():
+            transport_type = transportTypeInput.get().strip()
+            melding = self.controller.add_transport(transport_type)
+            if melding and melding.startswith("ERROR"):
+                messagebox.showwarning("Vervoer", melding.replace("ERROR: ", ""))
+                return
+            self.vervoer()
+
+        def vervoer_verwijderen():
+            if not geselecteerde_transport_id.get():
+                messagebox.showwarning("Vervoer", "Selecteer eerst een transporttype uit de tabel.")
+                return
+
+            melding = self.controller.delete_transport(geselecteerde_transport_id.get())
+            if melding and melding.startswith("ERROR"):
+                messagebox.showwarning("Vervoer", melding.replace("ERROR: ", ""))
+                return
+            self.vervoer()
+
+        knopstijl = {"fg": "white","activeforeground": "white","disabledforeground": "white","bd": 0,"padx": 12,"pady": 8,"font": ("Arial", 9, "bold"),"cursor": "hand2",}
+        tk.Button(knoppen, text="Toevoegen", command=vervoer_toevoegen, bg=blauw, activebackground=blauw, **knopstijl).pack(side="left", padx=(0, 10))
+        verwijderen_knop = tk.Button(knoppen, text="Verwijderen", command=vervoer_verwijderen, **knopstijl)
+        verwijderen_knop.pack(side="left")
+
+        verwijderen_tooltip = Tooltip(verwijderen_knop, "Klik eerst op een transporttype in het overzicht om te kunnen verwijderen.")
+
+        def update_vervoer_knoppen():
+            heeft_selectie = bool(geselecteerde_transport_id.get())
+            if heeft_selectie:
+                verwijderen_knop.config(bg=rood, activebackground=rood, cursor="hand2")
+                verwijderen_tooltip.set_actief(False)
+            else:
+                verwijderen_knop.config(bg=licht_grijs, activebackground=licht_grijs, cursor="hand2")
+                verwijderen_tooltip.set_actief(True)
+
+        update_vervoer_knoppen()
+
+        tk.Button(form, text="Leegmaken", command=vervoer_leegmaken, bg="#e7e7e7", fg=donker_grijs, activebackground=licht_grijs, bd=0, padx=10, pady=7, cursor="hand2").grid(row=3, column=0, sticky="ew", pady=(12, 0))
+
+        # frame overzicht vervoer
+        frame2 = maak_kader(self.vervoer_content, titel=f"Overzicht vervoer ({len(data)})", header_kleur=blauw)
+        frame2.pack_configure(side="left", padx=(10, 20), pady=20, fill="both", expand=True, anchor="nw")
+
+        tabel = maak_tabel(frame2,kolommen=["ID", "Type"],data=data)
+        tabel.column("ID", width=60, anchor="center")
+        tabel.column("Type", width=220)
+
+        def on_select(event):
+            geselecteerd = tabel.selection()
+            if geselecteerd:
+                rij = tabel.item(geselecteerd[0])["values"]
+                geselecteerde_transport_id.set(rij[0])
+                transportTypeInput.delete(0, "end")
+                transportTypeInput.insert(0, rij[1])
+            else:
+                geselecteerde_transport_id.set("")
+            update_vervoer_knoppen()
+
+        tabel.bind("<<TreeviewSelect>>", on_select)
 
     def student(self):
         self.clear_content()
@@ -65,20 +195,23 @@ class mainView:
         frame = maak_kader(self.student_content, titel="Student bewerken", verticalSpace=20, horizontalSpace=20, header_kleur=blauw)
         frame.pack_configure(side="left", fill="y", padx=(20, 10), pady=20, anchor="nw")
 
-        form = tk.Frame(frame, bg="white", padx=16, pady=14)
+        form = tk.Frame(frame, bg="white", padx=18, pady=16)
         form.pack(fill="x")
 
-        tk.Label(form, text="Naam", bg="white", fg=donker_grijs, font=("Arial", 10, "bold"), anchor="w").grid(row=0, column=0, sticky="w")
-        studentNaaminput = tk.Entry(form, width=28, font=("Arial", 10), relief="solid", bd=1)
+        label_stijl = {"bg": "white", "fg": donker_grijs, "font": ("Arial", 10, "bold"), "anchor": "w"}
+        input_stijl = {"width": 30,"font": ("Arial", 10),"relief": "solid","bd": 1,"highlightthickness": 1,"highlightbackground": "#d0d7de","highlightcolor": blauw,"insertbackground": donker_grijs,}
+
+        tk.Label(form, text="Naam", **label_stijl).grid(row=0, column=0, sticky="w")
+        studentNaaminput = tk.Entry(form, **input_stijl)
         studentNaaminput.grid(row=1, column=0, sticky="ew", pady=(3, 12))
 
-        tk.Label(form, text="Klas", bg="white", fg=donker_grijs, font=("Arial", 10, "bold"), anchor="w").grid(row=2, column=0, sticky="w")
-        studentKlasinput = tk.Entry(form, width=28, font=("Arial", 10), relief="solid", bd=1)
+        tk.Label(form, text="Klas", **label_stijl).grid(row=2, column=0, sticky="w")
+        studentKlasinput = tk.Entry(form, **input_stijl)
         studentKlasinput.grid(row=3, column=0, sticky="ew", pady=(3, 12))
 
-        tk.Label(form, text="Afstand tot school (km)", bg="white", fg=donker_grijs, font=("Arial", 10, "bold"), anchor="w").grid(row=4, column=0, sticky="w")
-        studentAfstandinput = tk.Entry(form, width=28, font=("Arial", 10), relief="solid", bd=1)
-        studentAfstandinput.grid(row=5, column=0, sticky="ew", pady=(3, 14))
+        tk.Label(form, text="Afstand tot school (km)", **label_stijl).grid(row=4, column=0, sticky="w")
+        studentAfstandinput = tk.Entry(form, **input_stijl)
+        studentAfstandinput.grid(row=5, column=0, sticky="ew", pady=(3, 16))
 
         form.columnconfigure(0, weight=1)
 
@@ -108,6 +241,7 @@ class mainView:
             studentKlasinput.delete(0, "end")
             studentAfstandinput.delete(0, "end")
             tabel.selection_remove(tabel.selection())
+            update_selectie_knoppen()
 
         def student_toevoegen():
             waarden = input_waarden()
@@ -133,12 +267,32 @@ class mainView:
             self.controller.delete_student(geselecteerde_student_id.get())
             self.student()
 
-        knopstijl = {"fg": "white","activeforeground": "white","bd": 0,"padx": 12,"pady": 7,"font": ("Arial", 9, "bold"),"cursor": "hand2"}
+        knopstijl = {"fg": "white","activeforeground": "white","disabledforeground": "white","bd": 0,"padx": 12,"pady": 8,"font": ("Arial", 9, "bold"),"cursor": "hand2",}
         tk.Button(knoppen, text="Toevoegen", command=student_toevoegen, bg=blauw, activebackground=blauw, **knopstijl).pack(side="left", padx=(0, 10))
-        tk.Button(knoppen, text="Aanpassen", command=student_aanpassen, bg=groen, activebackground="#2f7d32", **knopstijl).pack(side="left", padx=(0, 10))
-        tk.Button(knoppen, text="Verwijderen", command=student_verwijderen, bg=rood, activebackground="#b3261e", **knopstijl).pack(side="left")
+        aanpassen_knop = tk.Button(knoppen, text="Aanpassen", command=student_aanpassen, **knopstijl)
+        aanpassen_knop.pack(side="left", padx=(0, 10))
+        verwijderen_knop = tk.Button(knoppen, text="Verwijderen", command=student_verwijderen, **knopstijl)
+        verwijderen_knop.pack(side="left")
 
-        tk.Button(form, text="Leegmaken", command=formulier_leegmaken, bg="#e7e7e7", fg=donker_grijs, activebackground="#d8d8d8", bd=0, padx=10, pady=6, cursor="hand2").grid(row=7, column=0, sticky="ew", pady=(10, 0))
+        aanpassen_tooltip = Tooltip(aanpassen_knop, "Klik eerst op een leerling in het overzicht om te kunnen aanpassen.")
+        verwijderen_tooltip = Tooltip(verwijderen_knop, "Klik eerst op een leerling in het overzicht om te kunnen verwijderen.")
+
+        def update_selectie_knoppen():
+            heeft_selectie = bool(geselecteerde_student_id.get())
+            if heeft_selectie:
+                aanpassen_knop.config(state="normal", bg=groen, activebackground=groen, cursor="hand2")
+                verwijderen_knop.config(state="normal", bg=rood, activebackground=rood, cursor="hand2")
+                aanpassen_tooltip.set_actief(False)
+                verwijderen_tooltip.set_actief(False)
+            else:
+                aanpassen_knop.config(state="normal", bg=licht_grijs, activebackground=licht_grijs, cursor="hand2")
+                verwijderen_knop.config(state="normal", bg=licht_grijs, activebackground=licht_grijs, cursor="hand2")
+                aanpassen_tooltip.set_actief(True)
+                verwijderen_tooltip.set_actief(True)
+
+        update_selectie_knoppen()
+
+        tk.Button(form, text="Leegmaken", command=formulier_leegmaken, bg="#e7e7e7", fg=donker_grijs, activebackground=licht_grijs, bd=0, padx=10, pady=7, cursor="hand2").grid(row=7, column=0, sticky="ew", pady=(12, 0))
 
 
         # frame2 overzicht studenten
@@ -166,6 +320,9 @@ class mainView:
                 studentKlasinput.insert(0, rij[2])
                 studentAfstandinput.delete(0, "end")
                 studentAfstandinput.insert(0, str(rij[3]).replace(" km", ""))
+            else:
+                geselecteerde_student_id.set("")
+            update_selectie_knoppen()
 
         tabel.bind("<<TreeviewSelect>>", on_select)
 

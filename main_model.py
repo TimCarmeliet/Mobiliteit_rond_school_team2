@@ -2,7 +2,7 @@ import sqlite3
 
 class Model:
     def __init__(self):
-        self.conn = sqlite3.connect("mobility.db")
+        self.conn = sqlite3.connect("school.db")
         self.create_tables()
 
     def create_tables(self):
