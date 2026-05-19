@@ -526,4 +526,28 @@ class mainView:
         self.analyse_content = tk.Frame(self.root, bg="#eee")
         self.analyse_content.pack(fill="both", expand=True)
 
-        tk.Label(self.analyse_content, text="Analyse pagina", font=("Arial", 24)).pack(pady=20)
+        analyse_data = self.controller.get_analysis()
+        transporten = self.controller.get_transport()
+        transport_namen = {transport[0]: transport[1] for transport in transporten}
+
+        tabel_data = [
+            (transport_namen.get(transport_id, "Onbekend"), aantal)
+            for transport_id, aantal in analyse_data["transport"]
+        ]
+
+        frame = maak_kader(
+            self.analyse_content,
+            titel="Gebruik per vervoertype",
+            verticalSpace=20,
+            horizontalSpace=20,
+            header_kleur=blauw
+        )
+        frame.pack_configure(side="left", padx=(20, 10), pady=20, fill="both", expand=True, anchor="nw")
+
+        tabel = maak_tabel(
+            frame,
+            kolommen=["Vervoer", "Aantal verplaatsingen"],
+            data=tabel_data
+        )
+        tabel.column("Vervoer", width=220, anchor="w")
+        tabel.column("Aantal verplaatsingen", width=150, anchor="center")
