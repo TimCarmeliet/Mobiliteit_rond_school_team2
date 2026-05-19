@@ -93,6 +93,32 @@ class Model:
     def get_mobility(self):
         return self.conn.execute("SELECT * FROM Mobility_log").fetchall()
 
+    def get_mobility_overview(self):
+        return self.conn.execute(
+            """
+            SELECT
+                Mobility_log.id,
+                Students.naam,
+                Transport.type,
+                Mobility_log.datum
+            FROM Mobility_log
+            JOIN Students ON Mobility_log.student_id = Students.id
+            JOIN Transport ON Mobility_log.transport_id = Transport.id
+            ORDER BY Mobility_log.id
+            """
+        ).fetchall()
+
+    def update_mobility(self, mobility_id, student_id, transport_id, datum):
+        self.conn.execute(
+            "UPDATE Mobility_log SET student_id=?, transport_id=?, datum=? WHERE id=?",
+            (student_id, transport_id, datum, mobility_id)
+        )
+        self.conn.commit()
+
+    def delete_mobility(self, mobility_id):
+        self.conn.execute("DELETE FROM Mobility_log WHERE id=?", (mobility_id,))
+        self.conn.commit()
+
     # ANALYSE
     def count_transport(self):
         return self.conn.execute(

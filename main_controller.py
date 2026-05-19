@@ -17,6 +17,9 @@ class Controller:
     def _transport_exists(self, transport_id):
         return any(transport[0] == transport_id for transport in self.model.get_transport())
 
+    def _mobility_exists(self, mobility_id):
+        return any(mobility[0] == mobility_id for mobility in self.model.get_mobility())
+
     def _transport_type_exists(self, transport_type, ignore_id=None):
         transport_type = transport_type.lower()
         for transport in self.model.get_transport():
@@ -133,6 +136,48 @@ class Controller:
 
     # MOBILITY
     def add_mobility(self, student_id, transport_id, datum):
+        controle = self._validate_mobility(student_id, transport_id, datum)
+        if isinstance(controle, str):
+            return controle
+
+        student_id, transport_id, datum = controle
+        self.model.add_mobility(student_id, transport_id, datum)
+        return "Verplaatsing toegevoegd"
+
+    def get_mobility(self):
+        return self.model.get_mobility()
+
+    def get_mobility_overview(self):
+        return self.model.get_mobility_overview()
+
+    def update_mobility(self, mobility_id, student_id, transport_id, datum):
+        mobility_id = self._to_int(mobility_id, "Verplaatsing id")
+        if isinstance(mobility_id, str):
+            return mobility_id
+
+        if not self._mobility_exists(mobility_id):
+            return "ERROR: Verplaatsing bestaat niet"
+
+        controle = self._validate_mobility(student_id, transport_id, datum)
+        if isinstance(controle, str):
+            return controle
+
+        student_id, transport_id, datum = controle
+        self.model.update_mobility(mobility_id, student_id, transport_id, datum)
+        return "Verplaatsing aangepast"
+
+    def delete_mobility(self, mobility_id):
+        mobility_id = self._to_int(mobility_id, "Verplaatsing id")
+        if isinstance(mobility_id, str):
+            return mobility_id
+
+        if not self._mobility_exists(mobility_id):
+            return "ERROR: Verplaatsing bestaat niet"
+
+        self.model.delete_mobility(mobility_id)
+        return "Verplaatsing verwijderd"
+
+    def _validate_mobility(self, student_id, transport_id, datum):
         if not student_id or not transport_id or not datum:
             return "ERROR: Vul alle mobility gegevens in"
 
@@ -155,11 +200,7 @@ class Controller:
         except ValueError:
             return "ERROR: Datum moet YYYY-MM-DD zijn"
 
-        self.model.add_mobility(student_id, transport_id, datum)
-        return "Mobility log toegevoegd"
-
-    def get_mobility(self):
-        return self.model.get_mobility()
+        return student_id, transport_id, datum
 
     # ANALYSES
     def get_analysis(self):
