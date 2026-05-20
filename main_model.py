@@ -1,8 +1,14 @@
 import sqlite3
+from pathlib import Path
+
+# zelfde pad als model_sql.py
+BASE_DIR = Path(__file__).resolve().parent
+DB_PATH = BASE_DIR / "school.db"
 
 class Model:
     def __init__(self):
-        self.conn = sqlite3.connect("mobility.db")
+        self.conn = sqlite3.connect(DB_PATH)
+        self.conn.execute("PRAGMA foreign_keys = ON")
         self.create_tables()
 
     def create_tables(self):
