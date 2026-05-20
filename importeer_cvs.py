@@ -90,10 +90,10 @@ def importeer():
     print("\n📝  Testdata projectteam toevoegen …")
 
     teamleden = [
-        {"naam": "Ouadie F",    "klas": "6ADB", "afstand": 3.2},
+        {"naam": "Ouadie F",    "klas": "6ADB", "afstand": 0.4},
         {"naam": "Marouane A", "klas": "6ADB", "afstand": 7.8},
-        {"naam": "Bjarne B",  "klas": "6ADB", "afstand": 1.5},
-        {"naam": "Viggo dV",  "klas": "6ADB", "afstand": 12.0},
+        {"naam": "Bjarne B",  "klas": "6ADB", "afstand": 10.5},
+        {"naam": "Viggo dV",  "klas": "6ADB", "afstand": 5.0},
     ]
 
     # Haal transport IDs op
