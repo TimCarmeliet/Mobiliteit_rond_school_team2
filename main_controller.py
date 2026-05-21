@@ -124,6 +124,41 @@ class Controller:
 
     def get_mobility(self):
         return self.model.get_mobility()
+    
+    def update_mobility(self, log_id, student_id, transport_id, datum):
+        log_id = self._to_int(log_id, "Log id")
+        if isinstance(log_id, str):
+            return log_id
+
+        student_id = self._to_int(student_id, "Student id")
+        if isinstance(student_id, str):
+            return student_id
+
+        transport_id = self._to_int(transport_id, "Transport id")
+        if isinstance(transport_id, str):
+            return transport_id
+
+        if not self._student_exists(student_id):
+            return "ERROR: Student bestaat niet"
+
+        if not self._transport_exists(transport_id):
+            return "ERROR: Transport bestaat niet"
+
+        try:
+            datetime.strptime(datum, "%Y-%m-%d")
+        except ValueError:
+            return "ERROR: Datum moet YYYY-MM-DD zijn"
+
+        self.model.update_mobility(log_id, student_id, transport_id, datum)
+        return "Verplaatsing aangepast"
+
+    def delete_mobility(self, log_id):
+        log_id = self._to_int(log_id, "Log id")
+        if isinstance(log_id, str):
+            return log_id
+
+        self.model.delete_mobility(log_id)
+        return "Verplaatsing verwijderd"
 
     # ANALYSES
     def get_analysis(self):
