@@ -161,7 +161,7 @@ class ModelSQL:
             if rij:
                 ids.append(rij[0])
 
-        # voeg een verplaatsing toe per teamlid
+        # voeg een verplaatsing toe per teamlid.0   
         testdata_logs = [
             (ids[0], 1, "2026-05-13"),
             (ids[1], 2, "2026-05-13"),
