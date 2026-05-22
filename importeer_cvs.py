@@ -1,6 +1,6 @@
 """
 data/importeer_csv.py
----------------------
+-------------------
 Hulpprogramma om de 3 CSV-bestanden in de SQLite-databank te laden.
 Voer dit éénmalig uit vóór de eerste start van de applicatie.
 
