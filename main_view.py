@@ -1,6 +1,8 @@
 import tkinter as tk
 from handy_view import maak_kader, maak_tabel
 from tkinter import messagebox, ttk
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 # kleur
 blauw = "#185FA5"
@@ -239,14 +241,62 @@ class mainView:
         tabel.bind("<<TreeviewSelect>>", on_select)
 
 
-
     def dashboard(self):
-
         self.clear_content()
-        self.dashboard_content = tk.Frame(self.root, bg="#eee")
+        self.dashboard_content = tk.Frame(self.root, bg=grijs)
         self.dashboard_content.pack(fill="both", expand=True)
 
-        tk.Label(self.dashboard_content, text="Dashboard pagina", font=("Arial", 24)).pack(pady=20)
+        # haal de data op via de controller
+        verdeling = self.controller.get_transport_verdeling()
+
+        # frame voor de grafiek
+        frame = maak_kader(self.dashboard_content, titel="Verdeling vervoersmiddelen", header_kleur=blauw)
+        frame.pack_configure(side="left", padx=20, pady=20, fill="both", expand=True)
+
+        grafiek_frame = tk.Frame(frame, bg="white")
+        grafiek_frame.pack(fill="both", expand=True, padx=10, pady=10)
+
+        # data klaarmaken voor de grafiek
+        labels = [rij[0] for rij in verdeling]
+        waarden = [rij[1] for rij in verdeling]
+
+        # balkdiagram maken met matplotlib
+        fig, ax = plt.subplots(figsize=(6, 4))
+        fig.patch.set_facecolor("white")
+
+        kleuren = ["#185FA5", "#2f7d32", "#b3261e", "#f0a500"]
+        balken = ax.bar(labels, waarden, color=kleuren[:len(labels)])
+
+        # waarde boven elke balk tonen
+        for balk in balken:
+            hoogte = balk.get_height()
+            ax.text(
+                balk.get_x() + balk.get_width() / 2,
+                hoogte + 0.3,
+                str(int(hoogte)),
+                ha="center", va="bottom", fontsize=10, fontweight="bold"
+            )
+
+        ax.set_title("Aantal verplaatsingen per vervoersmiddel", fontsize=12, fontweight="bold")
+        ax.set_xlabel("Vervoersmiddel")
+        ax.set_ylabel("Aantal verplaatsingen")
+        ax.set_ylim(0, max(waarden) + 20)
+        fig.tight_layout()
+
+        # grafiek inbedden in tkinter
+        canvas = FigureCanvasTkAgg(fig, master=grafiek_frame)
+        canvas.draw()
+        canvas.get_tk_widget().pack(fill="both", expand=True)
+
+        # frame voor de tabel naast de grafiek
+        frame2 = maak_kader(self.dashboard_content, titel="Overzicht in cijfers", header_kleur=blauw)
+        frame2.pack_configure(side="left", padx=(0, 20), pady=20, anchor="nw")
+
+        tabel_data = [(rij[0], rij[1], f"{round(rij[1] / sum(waarden) * 100, 1)}%") for rij in verdeling]
+        tabel = maak_tabel(frame2, kolommen=["Vervoersmiddel", "Aantal", "Percentage"], data=tabel_data)
+        tabel.column("Vervoersmiddel", width=130)
+        tabel.column("Aantal", width=80, anchor="center")
+        tabel.column("Percentage", width=90, anchor="center")
     
     def verplaatsing(self):
 
@@ -399,35 +449,4 @@ class mainView:
         tk.Label(self.analyse_content, text="Analyse pagina", font=("Arial", 24)).pack(pady=20)
 
 
-    def dashboard(self):
-
-        self.clear_content()
-        self.dashboard_content = tk.Frame(self.root, bg="#eee")
-        self.dashboard_content.pack(fill="both", expand=True)
-
-        tk.Label(
-            self.dashboard_content,
-            text="Dashboard",
-            font=("Arial", 24, "bold"),
-            bg="#eee"
-        ).pack(pady=20)
-
-        # voorbeeld data transportmiddelen
-        transport_labels = ["Fiets", "Bus", "Auto", "Te voet", "Trein"]
-        aantallen = [15, 10, 7, 5, 3]
-
-        # maak diagram
-        fig, ax = plt.subplots(figsize=(6, 4))
-        ax.bar(transport_labels, aantallen)x
-
-        ax.set_title("Transportmiddelen van leerlingen")
-        ax.set_xlabel("Transportmiddel")0.
-
-        
-        ax.set_ylabel("Aantal leerlingen")
-
-        # diagram tonen in tkinter
-        canvas = FigureCanvasTkAgg(fig, master=self.dashboard_content)
-        canvas.draw()
-        canvas.get_tk_widget().pack(pady=20)
-  
+    
