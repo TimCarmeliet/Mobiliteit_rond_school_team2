@@ -98,10 +98,32 @@ class Model:
         self.conn.commit()
 
     # ANALYSE
+# ANALYSE
     def count_transport(self):
+        # geeft transport_id en aantal terug
         return self.conn.execute(
             "SELECT transport_id, COUNT(*) FROM Mobility_log GROUP BY transport_id"
         ).fetchall()
+
+    def get_transport_verdeling(self):
+        # haalt alle transporttypes op
+        transport = self.conn.execute("SELECT id, type FROM Transport").fetchall()
+
+        # haalt het aantal verplaatsingen per transport_id op
+        counts = self.conn.execute(
+            "SELECT transport_id, COUNT(*) FROM Mobility_log GROUP BY transport_id"
+        ).fetchall()
+
+        # zet counts om naar een dict zodat we makkelijk kunnen opzoeken
+        counts_dict = {row[0]: row[1] for row in counts}
+
+        # koppel de naam aan het aantal
+        resultaat = []
+        for transport_id, transport_type in transport:
+            aantal = counts_dict.get(transport_id, 0)
+            resultaat.append((transport_type, aantal))
+
+        return resultaat
 
     def avg_distance(self):
         return self.conn.execute(
