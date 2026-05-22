@@ -215,13 +215,16 @@ class mainView:
 
         # maak diagram
         fig, ax = plt.subplots(figsize=(6, 4))
-        ax.bar(transport_labels, aantallen)
+        ax.bar(transport_labels, aantallen)x
 
         ax.set_title("Transportmiddelen van leerlingen")
-        ax.set_xlabel("Transportmiddel")
+        ax.set_xlabel("Transportmiddel")0.
+
+        
         ax.set_ylabel("Aantal leerlingen")
 
         # diagram tonen in tkinter
         canvas = FigureCanvasTkAgg(fig, master=self.dashboard_content)
         canvas.draw()
         canvas.get_tk_widget().pack(pady=20)
+  
