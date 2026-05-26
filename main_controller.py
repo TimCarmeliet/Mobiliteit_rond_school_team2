@@ -161,6 +161,9 @@ class Controller:
         return "Verplaatsing verwijderd"
 
     # ANALYSES
+    def get_transport_verdeling(self):
+        return self.model.get_transport_verdeling()
+    
     def get_analysis(self):
         return {
             "transport": self.model.count_transport(),
