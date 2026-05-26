@@ -1,7 +1,7 @@
 import tkinter as tk
 from handy_view import maak_kader, maak_tabel
 from tkinter import messagebox, ttk
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt #als je matplotlib nog niet hebt installeer je het best via  pip install matplotlib
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 # kleur
