@@ -203,6 +203,9 @@ class Controller:
         return student_id, transport_id, datum
 
     # ANALYSES
+    def get_transport_verdeling(self):
+        return self.model.get_transport_verdeling()
+
     def get_analysis(self):
         return {
             "transport": self.model.count_transport(),
