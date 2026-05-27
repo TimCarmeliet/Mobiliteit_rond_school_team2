@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 
-from handy_view import maak_kader, maak_tabel
+from views.handy_view import maak_kader, maak_tabel
 
 
 blauw = "#185FA5"
