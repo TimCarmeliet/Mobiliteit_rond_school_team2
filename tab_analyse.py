@@ -6,7 +6,7 @@ class AnalyseTab(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent, bg="#f5f6fa")
         self._build_ui()
-        self.refresh()
+        self.refresh() 
 
     def _build_ui(self):
         btn_bar = tk.Frame(self, bg="#dfe6e9")
