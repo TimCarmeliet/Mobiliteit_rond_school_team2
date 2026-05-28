@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt #als je matplotlib nog niet hebt installeer je h
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from dashboard_view import toon_dashboard_pagina
 
+
 # kleur
 blauw = "#185FA5"
 rood = "#b3261e"
