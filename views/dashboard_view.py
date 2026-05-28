@@ -1,5 +1,5 @@
 import tkinter as tk
-from handy_view import maak_kader, maak_tabel
+from views.handy_view import maak_kader, maak_tabel
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
