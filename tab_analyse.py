@@ -20,7 +20,7 @@ class AnalyseTab(tk.Frame):
         ]
         for label, cmd in analyses:
             tk.Button(btn_bar, text=label, command=cmd,
-                      bg="#2c3e50", fg="white", font=("Segoe UI", 9, "bold"),
+                      bg="#2c3e50", fg="w hite", font=("Segoe UI", 9, "bold"),
                       relief="flat", padx=12, pady=6, cursor="hand2").pack(side="left", padx=2, pady=4)
 
         # Resultatenframe
