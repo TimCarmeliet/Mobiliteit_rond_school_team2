@@ -2,8 +2,9 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 
 from views.handy_view import Tooltip, maak_kader, maak_tabel
-from views.student_view import toon_student_pagina
-from views.verplaatsing_view import toon_verplaatsing_pagina
+from views.student_view import toon_student
+from views.verplaatsing_view import toon_verplaatsing
+from views.dashboard_view import toon_dashboard
 
 
 # kleur
@@ -95,7 +96,7 @@ class mainView:
         return True
 
     def student(self):
-        toon_student_pagina(self, Tooltip)
+        toon_student(self, Tooltip)
 
     def vervoer(self):
         self.clear_content()
@@ -225,14 +226,10 @@ class mainView:
         tabel.bind("<<TreeviewSelect>>", on_select)
 
     def dashboard(self):
-        self.clear_content()
-        self.dashboard_content = tk.Frame(self.root, bg=grijs)
-        self.dashboard_content.pack(fill="both", expand=True)
-
-        tk.Label(self.dashboard_content, text="Dashboard pagina", font=("Arial", 24)).pack(pady=20)
+        toon_dashboard(self)
 
     def verplaatsing(self):
-        toon_verplaatsing_pagina(self)
+        toon_verplaatsing(self)
 
     def analyse(self):
         self.clear_content()

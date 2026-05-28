@@ -11,7 +11,7 @@ donker_grijs = "#333333"
 licht_grijs = "#d8d8d8"
 
 
-def toon_student_pagina(view, tooltip_class):
+def toon_student(view, tooltip_class):
     view.clear_content()
     view.student_content = tk.Frame(view.root, bg="#eee")
     view.student_content.pack(fill="both", expand=True)
