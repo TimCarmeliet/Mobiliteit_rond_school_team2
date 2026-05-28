@@ -1,0 +1,154 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Pagina-1" id="oE8oqnxNRfpPrWzc35yE">
+    <mxGraphModel dx="1201" dy="817" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1300" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-1" parent="1" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="Model" vertex="1">
+          <mxGeometry height="280" width="260" x="50" y="270" as="geometry" />
+        </mxCell>
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-2" parent="B3Lsp_3KpATrrEOD13gi-1" style="text;align=left;spacingLeft=8;fontStyle=0;" value="- conn : Connection&#10;- DB_PATH : Path" vertex="1">
+          <mxGeometry height="40" width="260" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-3" parent="B3Lsp_3KpATrrEOD13gi-1" style="line;strokeColor=#6c8ebf;" value="" vertex="1">
+          <mxGeometry height="8" width="260" y="66" as="geometry" />
+        </mxCell>
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-4" parent="B3Lsp_3KpATrrEOD13gi-1" style="text;align=left;spacingLeft=8;fontStyle=0;fontSize=10;" value="+ create_tables() : void&#10;+ add_student(naam, klas, afstand) : void&#10;+ get_students() : list&#10;+ update_student(id, naam, klas, afstand) : void&#10;+ delete_student(id) : void&#10;+ add_transport(type) : void&#10;+ get_transport() : list&#10;+ delete_transport(id) : void&#10;+ add_mobility(student_id, transport_id, datum) : void&#10;+ get_mobility() : list&#10;+ count_transport() : list&#10;+ avg_distance() : float&#10;+ fetch_all(query, params) : list&#10;+ fetch_one(query, params) : Row&#10;+ execute(query, params) : void" vertex="1">
+          <mxGeometry height="200" width="260" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-5" parent="1" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#d5e8d4;strokeColor=#82b366;" value="ModelSQL" vertex="1">
+          <mxGeometry height="220" width="260" x="50" y="660" as="geometry" />
+        </mxCell>
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-6" parent="B3Lsp_3KpATrrEOD13gi-5" style="text;align=left;spacingLeft=8;" value="- conn : Connection&#10;- DB_PATH : Path" vertex="1">
+          <mxGeometry height="40" width="260" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-7" parent="B3Lsp_3KpATrrEOD13gi-5" style="line;strokeColor=#82b366;" value="" vertex="1">
+          <mxGeometry height="8" width="260" y="66" as="geometry" />
+        </mxCell>
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-8" parent="B3Lsp_3KpATrrEOD13gi-5" style="text;align=left;spacingLeft=8;fontSize=10;" value="+ maak_tabellen() : void&#10;+ import_transport() : void&#10;+ import_students() : void&#10;+ import_mobility_logs() : void&#10;+ import_testdata() : void&#10;+ run_import() : void" vertex="1">
+          <mxGeometry height="140" width="260" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-9" parent="1" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#fff2cc;strokeColor=#d6b656;" value="Controller" vertex="1">
+          <mxGeometry height="310" width="280" x="400" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-10" parent="B3Lsp_3KpATrrEOD13gi-9" style="text;align=left;spacingLeft=8;" value="- model : Model" vertex="1">
+          <mxGeometry height="30" width="280" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-11" parent="B3Lsp_3KpATrrEOD13gi-9" style="line;strokeColor=#d6b656;" value="" vertex="1">
+          <mxGeometry height="8" width="280" y="56" as="geometry" />
+        </mxCell>
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-12" parent="B3Lsp_3KpATrrEOD13gi-9" style="text;align=left;spacingLeft=8;fontSize=10;" value="+ add_student(naam, klas, afstand) : str&#10;+ get_students() : list&#10;+ get_all_students() : list&#10;+ update_student(id, naam, klas, afstand) : str&#10;+ delete_student(id) : str&#10;+ add_transport(type) : str&#10;+ get_transport() : list&#10;+ delete_transport(id) : str&#10;+ add_mobility(student_id, transport_id, datum) : str&#10;+ get_mobility() : list&#10;+ get_analysis() : dict&#10;- _to_int(value, field_name) : int&#10;- _student_exists(id) : bool&#10;- _transport_exists(id) : bool" vertex="1">
+          <mxGeometry height="240" width="280" y="64" as="geometry" />
+        </mxCell>
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-13" parent="1" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#f8cecc;strokeColor=#b85450;" value="mainView" vertex="1">
+          <mxGeometry height="230" width="260" x="880" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-14" parent="B3Lsp_3KpATrrEOD13gi-13" style="text;align=left;spacingLeft=8;fontSize=10;" value="- controller : Controller&#10;- root : Tk&#10;- topnav : Frame&#10;- student_content : Frame&#10;- vervoer_content : Frame&#10;- dashboard_content : Frame&#10;- verplaatsing_content : Frame&#10;- analyse_content : Frame" vertex="1">
+          <mxGeometry height="110" width="260" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-15" parent="B3Lsp_3KpATrrEOD13gi-13" style="line;strokeColor=#b85450;" value="" vertex="1">
+          <mxGeometry height="8" width="260" y="136" as="geometry" />
+        </mxCell>
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-16" parent="B3Lsp_3KpATrrEOD13gi-13" style="text;align=left;spacingLeft=8;fontSize=10;" value="+ student() : void&#10;+ vervoer() : void&#10;+ dashboard() : void&#10;+ verplaatsing() : void&#10;+ analyse() : void&#10;+ clear_content() : void" vertex="1">
+          <mxGeometry height="82" width="260" y="144" as="geometry" />
+        </mxCell>
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-17" parent="1" style="swimlane;fontStyle=3;align=center;startSize=36;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" value="«table»&#10;Students" vertex="1">
+          <mxGeometry height="110" width="180" x="687" y="550" as="geometry" />
+        </mxCell>
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-18" parent="B3Lsp_3KpATrrEOD13gi-17" style="text;align=left;spacingLeft=8;fontSize=10;" value="PK  id : INTEGER&#10;naam : TEXT&#10;klas : TEXT&#10;afstand : REAL" vertex="1">
+          <mxGeometry height="70" width="180" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-19" parent="1" style="swimlane;fontStyle=3;align=center;startSize=36;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" value="«table»&#10;Transport" vertex="1">
+          <mxGeometry height="80" width="180" x="680" y="730" as="geometry" />
+        </mxCell>
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-20" parent="B3Lsp_3KpATrrEOD13gi-19" style="text;align=left;spacingLeft=8;fontSize=10;" value="PK  id : INTEGER&#10;type : TEXT" vertex="1">
+          <mxGeometry height="40" width="180" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-21" parent="1" style="swimlane;fontStyle=3;align=center;startSize=36;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" value="«table»&#10;Mobility_log" vertex="1">
+          <mxGeometry height="110" width="180" x="970" y="630" as="geometry" />
+        </mxCell>
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-22" parent="B3Lsp_3KpATrrEOD13gi-21" style="text;align=left;spacingLeft=8;fontSize=10;" value="PK  id : INTEGER&#10;FK  student_id : INTEGER&#10;FK  transport_id : INTEGER&#10;datum : TEXT" vertex="1">
+          <mxGeometry height="70" width="180" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-23" edge="1" parent="1" source="B3Lsp_3KpATrrEOD13gi-9" style="edgeStyle=orthogonalEdgeStyle;" target="B3Lsp_3KpATrrEOD13gi-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-24" connectable="0" parent="B3Lsp_3KpATrrEOD13gi-23" style="edgeLabel;fontSize=10;" value="uses" vertex="1">
+          <mxGeometry relative="0.5" as="geometry" />
+        </mxCell>
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-25" edge="1" parent="1" source="B3Lsp_3KpATrrEOD13gi-13" style="edgeStyle=orthogonalEdgeStyle;" target="B3Lsp_3KpATrrEOD13gi-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-26" connectable="0" parent="B3Lsp_3KpATrrEOD13gi-25" style="edgeLabel;fontSize=10;" value="uses" vertex="1">
+          <mxGeometry relative="0.5" as="geometry" />
+        </mxCell>
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-27" edge="1" parent="1" source="B3Lsp_3KpATrrEOD13gi-1" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" target="B3Lsp_3KpATrrEOD13gi-17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-28" edge="1" parent="1" source="B3Lsp_3KpATrrEOD13gi-1" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" target="B3Lsp_3KpATrrEOD13gi-19">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-29" edge="1" parent="1" source="B3Lsp_3KpATrrEOD13gi-1" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" target="B3Lsp_3KpATrrEOD13gi-21">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-30" edge="1" parent="1" source="B3Lsp_3KpATrrEOD13gi-21" style="edgeStyle=orthogonalEdgeStyle;endArrow=ERmany;startArrow=ERone;exitX=0;exitY=0.5;" target="B3Lsp_3KpATrrEOD13gi-17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-31" connectable="0" parent="B3Lsp_3KpATrrEOD13gi-30" style="edgeLabel;fontSize=10;" value="FK" vertex="1">
+          <mxGeometry relative="0.5" as="geometry" />
+        </mxCell>
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-32" edge="1" parent="1" source="B3Lsp_3KpATrrEOD13gi-21" style="edgeStyle=orthogonalEdgeStyle;endArrow=ERmany;startArrow=ERone;exitX=0;exitY=0.5;" target="B3Lsp_3KpATrrEOD13gi-19">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-33" connectable="0" parent="B3Lsp_3KpATrrEOD13gi-32" style="edgeLabel;fontSize=10;" value="FK" vertex="1">
+          <mxGeometry relative="0.5" as="geometry" />
+        </mxCell>
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-34" edge="1" parent="1" source="B3Lsp_3KpATrrEOD13gi-5" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" target="B3Lsp_3KpATrrEOD13gi-17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="simpel_main" value="main.py&#10;start de app" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="400" y="400" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="simpel_handy" value="handy_view.py&#10;maakt kaders en tabellen" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="880" y="315" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="simpel_schooldb" value="school.db&#10;actieve database" style="shape=cylinder3d;whiteSpace=wrap;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="400" y="710" width="150" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="simpel_csv" value="CSV bestanden&#10;students.csv&#10;transport(1).csv&#10;mobility_log.csv" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="400" y="820" width="190" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="simpel_db_empty" value="database.db&#10;zelfde tabellen, leeg" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="610" y="820" width="170" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="simpel_co2" value="co2.py&#10;los klein bestand" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="880" y="930" width="160" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="simpel_temp" value="temptestfile.py&#10;test/voorbeeld klassendiagram" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1050" y="930" width="220" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="simpel_e1" value="maakt Controller" style="endArrow=block;html=1;rounded=0;strokeColor=#666666;" edge="1" parent="1" source="simpel_main" target="B3Lsp_3KpATrrEOD13gi-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="simpel_e2" value="maakt mainView" style="endArrow=block;html=1;rounded=0;strokeColor=#666666;" edge="1" parent="1" source="simpel_main" target="B3Lsp_3KpATrrEOD13gi-13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="simpel_e3" value="maakt Model" style="endArrow=block;html=1;rounded=0;strokeColor=#666666;" edge="1" parent="1" source="simpel_main" target="B3Lsp_3KpATrrEOD13gi-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="simpel_e4" value="gebruikt" style="endArrow=block;html=1;rounded=0;strokeColor=#666666;" edge="1" parent="1" source="B3Lsp_3KpATrrEOD13gi-13" target="simpel_handy">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="simpel_e5" value="leest/schrijft" style="endArrow=block;html=1;rounded=0;strokeColor=#666666;" edge="1" parent="1" source="B3Lsp_3KpATrrEOD13gi-1" target="simpel_schooldb">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="simpel_e6" value="importeert" style="endArrow=block;html=1;rounded=0;strokeColor=#666666;" edge="1" parent="1" source="B3Lsp_3KpATrrEOD13gi-5" target="simpel_csv">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="simpel_e7" value="vult" style="endArrow=block;html=1;rounded=0;strokeColor=#666666;" edge="1" parent="1" source="B3Lsp_3KpATrrEOD13gi-5" target="simpel_schooldb">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
