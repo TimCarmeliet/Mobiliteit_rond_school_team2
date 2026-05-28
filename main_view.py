@@ -4,6 +4,7 @@ from tkinter import messagebox, ttk
 import matplotlib.pyplot as plt #als je matplotlib nog niet hebt installeer je het best via  pip install matplotlib
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from dashboard_view import toon_dashboard_pagina
+from view_transport import vervoer
 
 
 # kleur
