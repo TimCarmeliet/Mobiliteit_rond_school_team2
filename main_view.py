@@ -2,7 +2,7 @@ import tkinter as tk
 from handy_view import maak_kader, maak_tabel
 from tkinter import messagebox, ttk
 from tab_logs import LogsTab
-from tab_analyse import AnalyseTab
+from analyse import AnalyseTab
 
 # kleur
 blauw = "#185FA5"

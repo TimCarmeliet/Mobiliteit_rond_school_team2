@@ -12,7 +12,7 @@ class AnalyseTab(tk.Frame):
         btn_bar = tk.Frame(self, bg="#dfe6e9")
         btn_bar.pack(fill="x", padx=0, pady=0)
 
-        analyses = [
+        analyses = [  
             ("📊 Aantal per vervoer",        self._toon_aantal_per_vervoer),
             ("📏 Gemiddelde afstand",         self._toon_gem_afstand),
             ("🏫 Overzicht per klas",         self._toon_per_klas),
