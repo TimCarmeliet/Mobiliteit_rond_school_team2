@@ -9,18 +9,35 @@ DB_PATH = BASE_DIR / "school.db"
 
 TABLES = {
     "students": {
-        "csv": BASE_DIR / "students.csv",
+        "csv_pattern": "students*.csv",
         "columns": ("id", "naam", "klas", "afstand"),
     },
     "transport": {
-        "csv": BASE_DIR / "transport.csv",
+        "csv_pattern": "transport*.csv",
         "columns": ("id", "type"),
     },
     "mobility_log": {
-        "csv": BASE_DIR / "mobility_log.csv",
+        "csv_pattern": "mobility_log*.csv",
         "columns": ("id", "student_id", "transport_id", "datum"),
     },
 }
+
+
+def find_csv_file(pattern):
+    files = list(BASE_DIR.glob(pattern))
+
+    if not files:
+        raise FileNotFoundError(
+            f"Geen bestand gevonden voor patroon '{pattern}'"
+        )
+
+    if len(files) > 1:
+        raise FileExistsError(
+            f"Meerdere bestanden gevonden voor patroon '{pattern}': "
+            + ", ".join(file.name for file in files)
+        )
+
+    return files[0]
 
 
 def read_csv_rows(csv_path, required_columns):
@@ -33,13 +50,16 @@ def read_csv_rows(csv_path, required_columns):
         missing_columns = set(required_columns) - set(reader.fieldnames)
         if missing_columns:
             missing = ", ".join(sorted(missing_columns))
-            raise ValueError(f"{csv_path.name} mist deze kolommen: {missing}")
+            raise ValueError(
+                f"{csv_path.name} mist deze kolommen: {missing}"
+            )
 
         return list(reader)
 
 
 def create_tables(connection):
     cursor = connection.cursor()
+
     cursor.execute("PRAGMA foreign_keys = ON")
 
     cursor.execute("DROP TABLE IF EXISTS mobility_log")
@@ -83,39 +103,79 @@ def create_tables(connection):
 
 
 def import_students(connection):
-    rows = read_csv_rows(TABLES["students"]["csv"], TABLES["students"]["columns"])
+    csv_file = find_csv_file(
+        TABLES["students"]["csv_pattern"]
+    )
+
+    rows = read_csv_rows(
+        csv_file,
+        TABLES["students"]["columns"]
+    )
+
     connection.executemany(
         """
         INSERT INTO students (id, naam, klas, afstand)
         VALUES (?, ?, ?, ?)
         """,
         (
-            (int(row["id"]), row["naam"], row["klas"], float(row["afstand"]))
+            (
+                int(row["id"]),
+                row["naam"],
+                row["klas"],
+                float(row["afstand"])
+            )
             for row in rows
         ),
     )
+
     return len(rows)
 
 
 def import_transport(connection):
-    rows = read_csv_rows(TABLES["transport"]["csv"], TABLES["transport"]["columns"])
+    csv_file = find_csv_file(
+        TABLES["transport"]["csv_pattern"]
+    )
+
+    rows = read_csv_rows(
+        csv_file,
+        TABLES["transport"]["columns"]
+    )
+
     connection.executemany(
         """
         INSERT INTO transport (id, type)
         VALUES (?, ?)
         """,
-        ((int(row["id"]), row["type"]) for row in rows),
+        (
+            (
+                int(row["id"]),
+                row["type"]
+            )
+            for row in rows
+        ),
     )
+
     return len(rows)
 
 
 def import_mobility_log(connection):
-    rows = read_csv_rows(
-        TABLES["mobility_log"]["csv"], TABLES["mobility_log"]["columns"]
+    csv_file = find_csv_file(
+        TABLES["mobility_log"]["csv_pattern"]
     )
+
+    rows = read_csv_rows(
+        csv_file,
+        TABLES["mobility_log"]["columns"]
+    )
+
     connection.executemany(
         """
-        INSERT INTO mobility_log (id, student_id, transport_id, datum)
+        INSERT INTO mobility_log (
+            id,
+            student_id,
+            transport_id,
+            datum
+        )
         VALUES (?, ?, ?, ?)
         """,
         (
@@ -123,17 +183,19 @@ def import_mobility_log(connection):
                 int(row["id"]),
                 int(row["student_id"]),
                 int(row["transport_id"]),
-                row["datum"],
+                row["datum"]
             )
             for row in rows
         ),
     )
+
     return len(rows)
 
 
 def build_database():
     with sqlite3.connect(DB_PATH) as connection:
         connection.execute("PRAGMA foreign_keys = ON")
+
         create_tables(connection)
 
         counts = {
@@ -141,6 +203,7 @@ def build_database():
             "transport": import_transport(connection),
             "mobility_log": import_mobility_log(connection),
         }
+
         connection.commit()
 
     return counts
@@ -148,6 +211,7 @@ def build_database():
 
 if __name__ == "__main__":
     imported_counts = build_database()
+
     print(f"Database aangemaakt: {DB_PATH.name}")
     print(f"Students: {imported_counts['students']}")
     print(f"Transport: {imported_counts['transport']}")
