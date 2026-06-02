@@ -10,7 +10,7 @@ grijs = "#eee"
 donker_grijs = "#333333"
 licht_grijs = "#d8d8d8"
 
-def toon_verplaatsing_pagina(view):
+def toon_verplaatsing(view):
         view.clear_content()
         view.verplaatsing_content = tk.Frame(view.root, bg=grijs)
         view.verplaatsing_content.pack(fill="both", expand=True)

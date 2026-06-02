@@ -3,6 +3,7 @@ import tkinter as tk
 from main_model import Model
 from main_controller import Controller
 from views.main_view import mainView
+from analyse import AnalyseTab
 
 if __name__ == "__main__":
     root = tk.Tk()
