@@ -40,6 +40,18 @@ class Model:
         )
         """)
 
+        # Uitbreiding Viggo: nieuwe tabel voor aanwezigheidsregistratie.
+        # Bestaande tabellen worden NIET aangepast (vereiste uit de projectfiche).
+        # Status kan zijn: 'aanwezig', 'afwezig' of 'laat'.
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS Attendance (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            student_id INTEGER,
+            datum TEXT,
+            status TEXT
+        )
+        """)
+
         self.conn.commit()
 
     # STUDENTS
@@ -165,3 +177,137 @@ class Model:
         cursor = self.conn.cursor()
         cursor.execute(query, params)
         self.conn.commit()
+
+    # ── ATTENDANCE / AFWEZIGHEID (uitbreiding Viggo) ─────────────────────────
+
+    def add_attendance(self, student_id, datum, status):
+        """Voeg een nieuw aanwezigheidsrecord toe aan de databank."""
+        self.conn.execute(
+            "INSERT INTO Attendance (student_id, datum, status) VALUES (?, ?, ?)",
+            (student_id, datum, status)
+        )
+        self.conn.commit()
+
+    def get_attendance(self):
+        """Haal alle aanwezigheidsrecords op als ruwe data (id, student_id, datum, status)."""
+        return self.conn.execute("SELECT * FROM Attendance").fetchall()
+
+    def get_attendance_overview(self):
+        """
+        Haal aanwezigheidsrecords op met studentnaam en klas voor weergave in de tabel.
+        Gebruikt een JOIN om de naam op te zoeken in de Students-tabel.
+        """
+        return self.conn.execute("""
+            SELECT Attendance.id, Students.naam, Students.klas, Attendance.datum, Attendance.status
+            FROM Attendance
+            JOIN Students ON Attendance.student_id = Students.id
+            ORDER BY Attendance.datum DESC, Students.naam
+        """).fetchall()
+
+    def update_attendance(self, attendance_id, student_id, datum, status):
+        """Pas een bestaand aanwezigheidsrecord aan op basis van het id."""
+        self.conn.execute(
+            "UPDATE Attendance SET student_id=?, datum=?, status=? WHERE id=?",
+            (student_id, datum, status, attendance_id)
+        )
+        self.conn.commit()
+
+    def delete_attendance(self, attendance_id):
+        """Verwijder een aanwezigheidsrecord uit de databank op basis van het id."""
+        self.conn.execute("DELETE FROM Attendance WHERE id=?", (attendance_id,))
+        self.conn.commit()
+
+    # ── ANALYSES AFWEZIGHEID ──────────────────────────────────────────────────
+
+    def get_afwezigheid_per_klas(self):
+        """
+        Bereken het aantal aanwezig/afwezig/laat per klas.
+        Gebruikt GEEN JOIN, maar combineert twee aparte queries via Python
+        (aanbevolen aanpak uit de projectfiche).
+
+        Stap 1: haal alle studenten op (id -> klas)
+        Stap 2: haal alle aanwezigheidsrecords op
+        Stap 3: combineer de data in Python met een teller per klas
+
+        Geeft een dict terug: { klas: { "aanwezig": n, "afwezig": n, "laat": n } }
+        """
+        # Stap 1: studenten ophalen zodat we weten welke klas elke student heeft
+        students = self.fetch_all("SELECT id, klas FROM Students")
+        student_klas = {row[0]: row[1] for row in students}  # {student_id: klas}
+
+        # Stap 2: alle aanwezigheidsrecords ophalen
+        records = self.fetch_all("SELECT student_id, status FROM Attendance")
+
+        # Stap 3: in Python de tellers per klas bijhouden
+        klas_data = {}
+        for student_id, status in records:
+            klas = student_klas.get(student_id, "Onbekend")
+            if klas not in klas_data:
+                # initialiseer de teller voor een nieuwe klas
+                klas_data[klas] = {"aanwezig": 0, "afwezig": 0, "laat": 0}
+            klas_data[klas][status] = klas_data[klas].get(status, 0) + 1
+
+        return klas_data
+
+    def get_aanwezigheid_percentage_per_klas(self):
+        """
+        Bereken het aanwezigheidspercentage per klas.
+        Bouwt verder op get_afwezigheid_per_klas().
+
+        Geeft een lijst van tuples terug:
+        (klas, aanwezig, afwezig, laat, totaal, percentage)
+        """
+        klas_data = self.get_afwezigheid_per_klas()
+        resultaat = []
+
+        for klas, counts in sorted(klas_data.items()):
+            totaal = sum(counts.values())
+            aanwezig = counts.get("aanwezig", 0)
+            afwezig = counts.get("afwezig", 0)
+            laat = counts.get("laat", 0)
+            # procentuele aanwezigheid: hoeveel % van de registraties is 'aanwezig'
+            percentage = round(aanwezig / totaal * 100, 1) if totaal > 0 else 0
+            resultaat.append((klas, aanwezig, afwezig, laat, totaal, percentage))
+
+        return resultaat
+
+    def get_vervoer_vs_aanwezigheid(self):
+        """
+        Analyseert de relatie tussen vervoersmiddel en aanwezigheid.
+
+        Voor elke dag waarop een student zowel een mobility_log-entry als een
+        aanwezigheidsrecord heeft, koppelen we het vervoersmiddel aan de status.
+
+        Gebruikt GEEN JOIN maar drie aparte queries en Python-logica:
+        Stap 1: mobility_log ophalen -> (student_id, datum) koppelt aan transport_id
+        Stap 2: transportnamen ophalen
+        Stap 3: aanwezigheidsrecords ophalen
+        Stap 4: de drie datasets combineren in Python
+
+        Geeft een dict terug:
+        { transport_type: { "aanwezig": n, "afwezig": n, "laat": n } }
+        """
+        # Stap 1: verplaatsingen ophalen: (student_id, datum) -> transport_id
+        mobility = self.fetch_all("SELECT student_id, datum, transport_id FROM Mobility_log")
+        # opzoektabel zodat we snel transport_id vinden voor een (student, datum)-combinatie
+        vervoer_per_student_dag = {(row[0], row[1]): row[2] for row in mobility}
+
+        # Stap 2: transportnamen ophalen: transport_id -> type
+        transport = self.fetch_all("SELECT id, type FROM Transport")
+        transport_naam = {row[0]: row[1] for row in transport}
+
+        # Stap 3: alle aanwezigheidsrecords ophalen
+        records = self.fetch_all("SELECT student_id, datum, status FROM Attendance")
+
+        # Stap 4: voor elke aanwezigheid het bijhorende vervoersmiddel opzoeken
+        vervoer_status = {}
+        for student_id, datum, status in records:
+            transport_id = vervoer_per_student_dag.get((student_id, datum))
+            if transport_id:
+                # deze student had op deze dag ook een verplaatsingsregistratie
+                transport_type = transport_naam.get(transport_id, "Onbekend")
+                if transport_type not in vervoer_status:
+                    vervoer_status[transport_type] = {"aanwezig": 0, "afwezig": 0, "laat": 0}
+                vervoer_status[transport_type][status] = vervoer_status[transport_type].get(status, 0) + 1
+
+        return vervoer_status
