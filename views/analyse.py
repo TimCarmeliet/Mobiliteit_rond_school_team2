@@ -152,7 +152,7 @@ def toon_analyse(view):
 
         frame = maak_kader(
             analyse_frame,
-            titel="Aantal vervoersmiddelen per leerling",
+            titel="Aantal verschillende vervoersmiddelen per leerling",
             verticalSpace=0,
             horizontalSpace=0,
             header_kleur=blauw,

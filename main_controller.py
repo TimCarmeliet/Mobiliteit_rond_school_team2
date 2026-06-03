@@ -211,11 +211,11 @@ class Controller:
         transporten = self.model.get_transport()
         mobility_logs = self.model.get_mobility()
 
-        student_per_id = {student[0]: student for student in students}
-        transport_naam_per_id = {transport[0]: transport[1] for transport in transporten}
+        student_per_id = {s[0]: s for s in students}
+        transport_naam_per_id = {t[0]: t[1] for t in transporten}
 
-        transport_tellingen = {transport[0]: 0 for transport in transporten}
-        afstanden_per_transport = {transport[0]: [] for transport in transporten}
+        transport_tellingen = {t[0]: 0 for t in transporten}
+        afstanden_per_transport = {t[0]: [] for t in transporten}
         vervoersmiddelen_per_klas = {}
         vervoer_per_leerling = {}
 
@@ -229,20 +229,21 @@ class Controller:
 
             if student:
                 afstanden_per_transport.setdefault(transport_id, []).append(student[3])
+
                 klas = student[2]
                 vervoersmiddelen_per_klas.setdefault(klas, {})
                 vervoersmiddelen_per_klas[klas][transport_id] = (
                     vervoersmiddelen_per_klas[klas].get(transport_id, 0) + 1
                 )
-                vervoer_per_leerling[student_id] = vervoer_per_leerling.get(student_id, 0) + 1
+                vervoer_per_leerling.setdefault(student_id, set()).add(transport_id)
 
         transport_data = [
-            (transport_naam_per_id[transport_id], aantal)
-            for transport_id, aantal in transport_tellingen.items()
+            (transport_naam_per_id[t_id], aantal)
+            for t_id, aantal in transport_tellingen.items()
         ]
 
         afstand_per_transport = []
-        for transport_id, afstanden in afstanden_per_transport.items():
+        for t_id, afstanden in afstanden_per_transport.items():
             if afstanden:
                 gemiddelde = sum(afstanden) / len(afstanden)
                 gemiddelde_tekst = f"{round(gemiddelde, 2)} km"
@@ -250,15 +251,16 @@ class Controller:
                 gemiddelde_tekst = "Geen data"
 
             afstand_per_transport.append(
-                (transport_naam_per_id.get(transport_id, "Onbekend"), gemiddelde_tekst)
+                (transport_naam_per_id.get(t_id, "Onbekend"), gemiddelde_tekst)
             )
 
         klas_data = []
-        klassen = sorted({student[2] for student in students})
+        klassen = sorted({s[2] for s in students})
+
         for klas in klassen:
-            studenten_in_klas = [student for student in students if student[2] == klas]
-            aantal_studenten = len(studenten_in_klas)
-            gemiddelde = sum(student[3] for student in studenten_in_klas) / aantal_studenten
+            studenten = [s for s in students if s[2] == klas]
+            aantal = len(studenten)
+            gemiddelde = sum(s[3] for s in studenten) / aantal
 
             verdeling = vervoersmiddelen_per_klas.get(klas, {})
             if verdeling:
@@ -270,12 +272,12 @@ class Controller:
                 verdeling_tekst = "Geen verplaatsingen"
 
             klas_data.append(
-                (klas, aantal_studenten, f"{round(gemiddelde, 2)} km", verdeling_tekst)
+                (klas, aantal, f"{round(gemiddelde, 2)} km", verdeling_tekst)
             )
 
         leerling_data = [
-            (student_per_id[s_id][1], aantal)
-            for s_id, aantal in vervoer_per_leerling.items()
+            (student_per_id[s_id][1], len(transport_set))
+            for s_id, transport_set in vervoer_per_leerling.items()
             if s_id in student_per_id
         ]
         return {
