@@ -206,6 +206,35 @@ class Controller:
     def get_transport_verdeling(self):
         return self.model.get_transport_verdeling()
 
+    def get_overzicht_per_klas(self):
+        """
+        Combineert twee model-queries tot één volledig overzicht per klas.
+
+        Bevat per klas:
+          - 'klas'       : naam van de klas
+          - 'aantal'     : aantal studenten in die klas
+          - 'gem_afstand': gemiddelde afstand tot school (in km)
+          - 'vervoer'    : dict met vervoersverdeling { type: aantal_verplaatsingen }
+
+        Bouwt op:
+          - model.get_studenten_per_klas()  -> (klas, aantal, gem_afstand)
+          - model.get_vervoer_per_klas()    -> { klas: { type: n } }
+        """
+        studenten = self.model.get_studenten_per_klas()
+        vervoer = self.model.get_vervoer_per_klas()
+
+        resultaat = []
+        for klas, aantal, gem_afstand in studenten:
+            resultaat.append({
+                "klas": klas,
+                "aantal": aantal,
+                "gem_afstand": gem_afstand or 0,
+                # als er geen verplaatsingen zijn voor deze klas, geef lege dict
+                "vervoer": vervoer.get(klas, {}),
+            })
+
+        return resultaat
+
     def get_analysis(self):
         return {
             "transport": self.model.count_transport(),

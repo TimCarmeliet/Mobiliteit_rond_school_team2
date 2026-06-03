@@ -138,6 +138,58 @@ class Model:
         self.conn.execute("DELETE FROM Mobility_log WHERE id=?", (mobility_id,))
         self.conn.commit()
 
+    # ── ANALYSE PER KLAS ─────────────────────────────────────────────────────
+
+    def get_studenten_per_klas(self):
+        """
+        Geeft per klas het aantal studenten en de gemiddelde afstand.
+        Eén eenvoudige SQL-query met GROUP BY (geen JOIN nodig).
+
+        Resultaat: lijst van tuples (klas, aantal, gem_afstand)
+        """
+        return self.fetch_all("""
+            SELECT klas, COUNT(*) AS aantal, ROUND(AVG(afstand), 2) AS gem_afstand
+            FROM Students
+            GROUP BY klas
+            ORDER BY klas
+        """)
+
+    def get_vervoer_per_klas(self):
+        """
+        Geeft de verdeling van vervoersmiddelen per klas.
+
+        Gebruikt GEEN JOIN, maar drie aparte queries en Python-logica
+        (aanbevolen aanpak uit de projectfiche):
+
+        Stap 1: studenten ophalen  (id -> klas)
+        Stap 2: verplaatsingen ophalen (student_id -> transport_id)
+        Stap 3: transportnamen ophalen (id -> type)
+        Stap 4: combineren in Python met een teller per klas per vervoer
+
+        Resultaat: dict { klas: { transport_type: aantal_verplaatsingen } }
+        """
+        # Stap 1: welke klas heeft elke student?
+        students = self.fetch_all("SELECT id, klas FROM Students")
+        student_klas = {row[0]: row[1] for row in students}
+
+        # Stap 2: alle verplaatsingen (student_id, transport_id)
+        mobility = self.fetch_all("SELECT student_id, transport_id FROM Mobility_log")
+
+        # Stap 3: naam van elk transporttype opzoeken
+        transport = self.fetch_all("SELECT id, type FROM Transport")
+        transport_naam = {row[0]: row[1] for row in transport}
+
+        # Stap 4: tellen per klas per vervoersmiddel
+        klas_vervoer = {}
+        for student_id, transport_id in mobility:
+            klas = student_klas.get(student_id, "Onbekend")
+            transport_type = transport_naam.get(transport_id, "Onbekend")
+            if klas not in klas_vervoer:
+                klas_vervoer[klas] = {}
+            klas_vervoer[klas][transport_type] = klas_vervoer[klas].get(transport_type, 0) + 1
+
+        return klas_vervoer
+
     # ANALYSE
     def count_transport(self):
         return self.conn.execute(

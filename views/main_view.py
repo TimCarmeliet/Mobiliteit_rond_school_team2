@@ -6,6 +6,7 @@ from views.student_view import toon_student
 from views.verplaatsing_view import toon_verplaatsing
 from views.dashboard_view import toon_dashboard
 from views.afwezigheid_view import toon_afwezigheid  # uitbreiding Viggo
+from views.analyse_view import toon_analyse
 
 
 # kleur
@@ -242,32 +243,4 @@ class mainView:
         toon_verplaatsing(self)
 
     def analyse(self):
-        self.clear_content()
-        self.analyse_content = tk.Frame(self.root, bg=grijs)
-        self.analyse_content.pack(fill="both", expand=True)
-
-        analyse_data = self.controller.get_analysis()
-        transporten = self.controller.get_transport()
-        transport_namen = {transport[0]: transport[1] for transport in transporten}
-
-        tabel_data = [
-            (transport_namen.get(transport_id, "Onbekend"), aantal)
-            for transport_id, aantal in analyse_data["transport"]
-        ]
-
-        frame = maak_kader(
-            self.analyse_content,
-            titel="Gebruik per vervoertype",
-            verticalSpace=20,
-            horizontalSpace=20,
-            header_kleur=blauw,
-        )
-        frame.pack_configure(side="left", padx=(20, 10), pady=20, fill="both", expand=True, anchor="nw")
-
-        tabel = maak_tabel(
-            frame,
-            kolommen=["Vervoer", "Aantal verplaatsingen"],
-            data=tabel_data,
-        )
-        tabel.column("Vervoer", width=220, anchor="w")
-        tabel.column("Aantal verplaatsingen", width=150, anchor="center")
+        toon_analyse(self)
