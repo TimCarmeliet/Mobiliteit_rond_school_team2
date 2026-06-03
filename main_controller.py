@@ -209,5 +209,6 @@ class Controller:
     def get_analysis(self):
         return {
             "transport": self.model.count_transport(),
-            "avg_distance": self.model.avg_distance()
+            "avg_distance": self.model.avg_distance(),
+            "avg_distance_per_transport": self.model.avg_distance_per_transport()
         }

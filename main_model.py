@@ -150,6 +150,36 @@ class Model:
         return self.conn.execute(
             "SELECT AVG(afstand) FROM Students"
         ).fetchone()[0]
+        
+    # gemiddelde afstand per vervoersmiddel
+    def avg_distance_per_transport(self):
+        # haal alle transport types op
+        transporten = self.conn.execute("SELECT id, type FROM Transport").fetchall()
+
+        resultaat = []
+        for transport_id, transport_type in transporten:
+            # haal alle student ids op die dit transport gebruiken
+            logs = self.conn.execute(
+                "SELECT DISTINCT student_id FROM Mobility_log WHERE transport_id = ?",
+                (transport_id,)
+            ).fetchall()
+
+            if not logs:
+                continue
+
+            student_ids = [log[0] for log in logs]
+
+            # bereken de gemiddelde afstand voor deze studenten
+            placeholders = ",".join("?" * len(student_ids))
+            gemiddelde = self.conn.execute(
+                f"SELECT AVG(afstand) FROM Students WHERE id IN ({placeholders})",
+                student_ids
+            ).fetchone()[0]
+
+            if gemiddelde is not None:
+                resultaat.append((transport_type, round(gemiddelde, 2)))
+
+        return resultaat
 
     def fetch_all(self, query, params=()):
         cursor = self.conn.cursor()
