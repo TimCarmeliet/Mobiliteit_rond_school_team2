@@ -1,35 +1,14 @@
-"""
-dashboard_view.py
-=================
-Toont het hoofddashboard met drie tabbladen via ttk.Notebook:
-
-  Tab 1 – Vervoersmiddelen : bestaande grafiek + tabel
-  Tab 2 – Overzicht per klas : tabel + gestapeld balkdiagram vervoer per klas
-  Tab 3 – Afwezigheid      : uitbreiding Viggo
-             • tabel: aanwezigheidspercentage per klas
-             • tabel: vervoersmiddel vs aanwezigheid
-             • gestapeld balkdiagram per klas (aanwezig / afwezig / laat)
-"""
 
 import tkinter as tk
-<<<<<<< HEAD
-=======
-from tkinter import ttk                                   # voor het Notebook (tabbladen)
-from views.handy_view import maak_kader, maak_tabel
->>>>>>> 58690fd572a2ef57bc6fe1df660e7071b7ce3554
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from views.handy_view import maak_kader, maak_tabel
 
-<<<<<<< HEAD
 # kleuren
-=======
-# Kleuren consistent met de rest van de applicatie
->>>>>>> 58690fd572a2ef57bc6fe1df660e7071b7ce3554
 blauw = "#185FA5"
 grijs = "#eee"
 
-# ── GRAFIEK INSTELLINGEN - makkelijk aanpasbaar ──────────────────────────────
+# ── GRAFIEK INSTELLINGEN - makkelijk aanpasbaar 
 # Verander GRAFIEK_TYPE naar "balk" of "taart" om de grafiek te wisselen
 GRAFIEK_TYPE = "balk"
 
@@ -38,7 +17,7 @@ GRAFIEK_KLEUREN = ["#185FA5", "#2f7d32", "#b3261e", "#f0a500"]
 
 # grootte van de grafiek (breedte, hoogte in inches)
 GRAFIEK_GROOTTE = (5, 4)
-# ─────────────────────────────────────────────────────────────────────────────
+
 
 
 def _maak_grafiek(ax, labels, waarden):
@@ -83,9 +62,6 @@ def toon_dashboard(view):
     view.dashboard_content = tk.Frame(view.root, bg=grijs)
     view.dashboard_content.pack(fill="both", expand=True)
 
-<<<<<<< HEAD
-    # haal data op via de controller
-=======
     # Notebook = de widget die tabbladen beheert in Tkinter (ttk.Notebook)
     notebook = ttk.Notebook(view.dashboard_content)
     notebook.pack(fill="both", expand=True, padx=5, pady=5)
@@ -115,31 +91,17 @@ def _toon_vervoer_tab(view, parent):
     'parent' is het tabblad-frame waarin alles wordt opgebouwd.
     """
     # Verdelingsdata ophalen via de controller
->>>>>>> 58690fd572a2ef57bc6fe1df660e7071b7ce3554
     verdeling = view.controller.get_transport_verdeling()
     labels = [rij[0] for rij in verdeling]
     waarden = [rij[1] for rij in verdeling]
     totaal = sum(waarden)
 
-<<<<<<< HEAD
-    # ── frame links: grafiek ──
-    frame = maak_kader(view.dashboard_content, titel="Verdeling vervoersmiddelen", header_kleur=blauw)
-=======
     # Frame voor de grafiek (links)
     frame = maak_kader(parent, titel="Verdeling vervoersmiddelen", header_kleur=blauw)
->>>>>>> 58690fd572a2ef57bc6fe1df660e7071b7ce3554
     frame.pack_configure(side="left", padx=20, pady=20, fill="both", expand=True)
 
     grafiek_frame = tk.Frame(frame, bg="white")
     grafiek_frame.pack(fill="both", expand=True, padx=10, pady=10)
-<<<<<<< HEAD
-
-    fig, ax = plt.subplots(figsize=GRAFIEK_GROOTTE)
-    fig.patch.set_facecolor("white")
-    _maak_grafiek(ax, labels, waarden)
-    fig.tight_layout()
-
-=======
 
     # Data klaarmaken voor matplotlib
     labels = [rij[0] for rij in verdeling]
@@ -208,14 +170,6 @@ _EXTRA_KLEUREN = ["#9b59b6", "#1abc9c", "#e67e22", "#2ecc71"]
 
 
 def _toon_klas_dashboard(view, parent):
-    """
-    Toont het dashboardtabblad 'Overzicht per klas'.
-
-    Links : tabel  – klas | aantal studenten | gem. afstand (km)
-    Rechts: grafiek – gestapeld balkdiagram met vervoersverdeling per klas
-                      elke kleur = één vervoerstype
-                      elke balk  = één klas
-    """
     # Data ophalen via de controller
     klas_data = view.controller.get_overzicht_per_klas()
 
@@ -284,12 +238,10 @@ def _toon_klas_dashboard(view, parent):
     fig.tight_layout()
 
     # Grafiek inbedden in Tkinter via de matplotlib-backend
->>>>>>> 58690fd572a2ef57bc6fe1df660e7071b7ce3554
     canvas = FigureCanvasTkAgg(fig, master=grafiek_frame)
     canvas.draw()
     canvas.get_tk_widget().pack(fill="both", expand=True)
 
-<<<<<<< HEAD
     # ── frame rechts: legende + cijfers ──
     frame2 = maak_kader(view.dashboard_content, titel="Overzicht in cijfers", header_kleur=blauw)
     frame2.pack_configure(side="left", padx=(0, 20), pady=20, anchor="nw")
@@ -318,130 +270,3 @@ def _toon_klas_dashboard(view, parent):
     tabel.column("Vervoersmiddel", width=130)
     tabel.column("Aantal", width=80, anchor="center")
     tabel.column("Percentage", width=90, anchor="center")
-=======
-
-# ── Tab 3: Afwezigheid (uitbreiding Viggo) ────────────────────────────────────
-
-def _toon_afwezigheid_dashboard(view, parent):
-    """
-    Uitbreiding Viggo: dashboardweergave van aanwezigheidsanalyse.
-
-    Links: twee informatietabellen
-      1. Aanwezigheidspercentage per klas
-         (klas | aanwezig | afwezig | laat | totaal | % aanwezig)
-      2. Relatie vervoersmiddel vs aanwezigheid
-         (vervoer | aanwezig | afwezig | laat)
-
-    Rechts: gestapeld balkdiagram per klas
-      - Groen  = aanwezig
-      - Rood   = afwezig
-      - Oranje = laat
-    Dit diagram maakt het onmiddellijk zichtbaar hoe de aanwezigheid
-    per klas verdeeld is.
-    """
-    # Data ophalen via de controller (geen directe databanktoegang vanuit de view)
-    percentages = view.controller.get_aanwezigheid_percentage_per_klas()
-    vervoer_vs = view.controller.get_vervoer_vs_aanwezigheid()
-    klas_data = view.controller.get_afwezigheid_per_klas()
-
-    # ── LINKS: tabellen ───────────────────────────────────────────────────────
-    linker_frame = tk.Frame(parent, bg=grijs)
-    linker_frame.pack(side="left", fill="y", padx=10, pady=10)
-
-    # Tabel 1: aanwezigheidspercentage per klas
-    frame1 = maak_kader(linker_frame, titel="% Aanwezigheid per klas", header_kleur=blauw)
-    frame1.pack(pady=(0, 10), anchor="nw")
-
-    tabel1_data = [
-        (klas, aanwezig, afwezig, laat, totaal, f"{percentage}%")
-        for klas, aanwezig, afwezig, laat, totaal, percentage in percentages
-    ]
-    tabel1 = maak_tabel(
-        frame1,
-        kolommen=["Klas", "Aanwezig", "Afwezig", "Laat", "Totaal", "% Aanwezig"],
-        data=tabel1_data,
-    )
-    tabel1.column("Klas", width=70, anchor="center")
-    tabel1.column("Aanwezig", width=70, anchor="center")
-    tabel1.column("Afwezig", width=70, anchor="center")
-    tabel1.column("Laat", width=60, anchor="center")
-    tabel1.column("Totaal", width=60, anchor="center")
-    tabel1.column("% Aanwezig", width=85, anchor="center")
-
-    # Tabel 2: vervoersmiddel vs aanwezigheid
-    # Toont hoe aanwezigheid verschilt per type vervoer
-    frame2 = maak_kader(linker_frame, titel="Vervoer vs Aanwezigheid", header_kleur=blauw)
-    frame2.pack(anchor="nw")
-
-    tabel2_data = [
-        (
-            transport,
-            counts.get("aanwezig", 0),
-            counts.get("afwezig", 0),
-            counts.get("laat", 0),
-        )
-        for transport, counts in sorted(vervoer_vs.items())
-    ]
-    tabel2 = maak_tabel(
-        frame2,
-        kolommen=["Vervoer", "Aanwezig", "Afwezig", "Laat"],
-        data=tabel2_data,
-    )
-    tabel2.column("Vervoer", width=100, anchor="w")
-    tabel2.column("Aanwezig", width=80, anchor="center")
-    tabel2.column("Afwezig", width=70, anchor="center")
-    tabel2.column("Laat", width=60, anchor="center")
-
-    # ── RECHTS: gestapeld balkdiagram ─────────────────────────────────────────
-    rechter_frame = tk.Frame(parent, bg=grijs)
-    rechter_frame.pack(side="left", fill="both", expand=True, padx=10, pady=10)
-
-    frame3 = maak_kader(rechter_frame, titel="Aanwezigheid per klas (grafiek)", header_kleur=blauw)
-    frame3.pack(fill="both", expand=True)
-
-    grafiek_frame = tk.Frame(frame3, bg="white")
-    grafiek_frame.pack(fill="both", expand=True, padx=10, pady=10)
-
-    if not klas_data:
-        # Als er nog geen aanwezigheidsdata is, toon een duidelijke melding
-        tk.Label(
-            grafiek_frame,
-            text="Nog geen aanwezigheidsdata beschikbaar.\n"
-                 "Voeg records toe via het 'Afwezigheid' menu.",
-            bg="white", font=("Arial", 11), fg=donker_grijs, justify="center"
-        ).pack(pady=40)
-        return
-
-    # Data klaarmaken voor het gestapeld balkdiagram
-    klassen = sorted(klas_data.keys())
-    aanwezig_vals = [klas_data[k].get("aanwezig", 0) for k in klassen]
-    afwezig_vals = [klas_data[k].get("afwezig", 0) for k in klassen]
-    laat_vals = [klas_data[k].get("laat", 0) for k in klassen]
-
-    fig, ax = plt.subplots(figsize=(6, 4))
-    fig.patch.set_facecolor("white")
-
-    x = list(range(len(klassen)))
-
-    # Gestapeld balkdiagram: aanwezig onderaan, afwezig erboven, laat bovenaan.
-    # 'bottom' geeft aan waar de volgende laag begint.
-    ax.bar(x, aanwezig_vals, label="Aanwezig", color=groen)
-    ax.bar(x, afwezig_vals, bottom=aanwezig_vals, label="Afwezig", color=rood)
-
-    # Bottom van de "laat"-laag = aanwezig + afwezig
-    bottom_laat = [a + b for a, b in zip(aanwezig_vals, afwezig_vals)]
-    ax.bar(x, laat_vals, bottom=bottom_laat, label="Laat", color="#f0a500")
-
-    ax.set_title("Aanwezigheid per klas", fontsize=12, fontweight="bold")
-    ax.set_xlabel("Klas")
-    ax.set_ylabel("Aantal registraties")
-    ax.set_xticks(x)
-    ax.set_xticklabels(klassen)
-    ax.legend()
-    fig.tight_layout()
-
-    # Grafiek inbedden in Tkinter via de matplotlib FigureCanvasTkAgg-backend
-    canvas = FigureCanvasTkAgg(fig, master=grafiek_frame)
-    canvas.draw()
-    canvas.get_tk_widget().pack(fill="both", expand=True)
->>>>>>> 58690fd572a2ef57bc6fe1df660e7071b7ce3554

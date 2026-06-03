@@ -6,10 +6,7 @@ from views.student_view import toon_student
 from views.verplaatsing_view import toon_verplaatsing
 from views.view_transport import toon_vervoer_pagina
 from views.dashboard_view import toon_dashboard
-<<<<<<< HEAD
-=======
 from views.afwezigheid_view import toon_afwezigheid  # uitbreiding Viggo
->>>>>>> 58690fd572a2ef57bc6fe1df660e7071b7ce3554
 from views.analyse_view import toon_analyse
 
 
