@@ -217,10 +217,12 @@ class Controller:
         transport_tellingen = {transport[0]: 0 for transport in transporten}
         afstanden_per_transport = {transport[0]: [] for transport in transporten}
         vervoersmiddelen_per_klas = {}
+        vervoer_per_leerling = {}
 
         for mobility in mobility_logs:
-            student = student_per_id.get(mobility[1])
+            student_id = mobility[1]
             transport_id = mobility[2]
+            student = student_per_id.get(student_id)
 
             if transport_id in transport_tellingen:
                 transport_tellingen[transport_id] += 1
@@ -232,6 +234,7 @@ class Controller:
                 vervoersmiddelen_per_klas[klas][transport_id] = (
                     vervoersmiddelen_per_klas[klas].get(transport_id, 0) + 1
                 )
+                vervoer_per_leerling[student_id] = vervoer_per_leerling.get(student_id, 0) + 1
 
         transport_data = [
             (transport_naam_per_id[transport_id], aantal)
@@ -260,8 +263,8 @@ class Controller:
             verdeling = vervoersmiddelen_per_klas.get(klas, {})
             if verdeling:
                 verdeling_tekst = ", ".join(
-                    f"{transport_naam_per_id.get(transport_id, 'Onbekend')}: {aantal}"
-                    for transport_id, aantal in verdeling.items()
+                    f"{transport_naam_per_id.get(tid, 'Onbekend')}: {aantal}"
+                    for tid, aantal in verdeling.items()
                 )
             else:
                 verdeling_tekst = "Geen verplaatsingen"
@@ -270,9 +273,15 @@ class Controller:
                 (klas, aantal_studenten, f"{round(gemiddelde, 2)} km", verdeling_tekst)
             )
 
+        leerling_data = [
+            (student_per_id[s_id][1], aantal)
+            for s_id, aantal in vervoer_per_leerling.items()
+            if s_id in student_per_id
+        ]
         return {
             "transport": transport_data,
             "avg_distance": self.model.avg_distance(),
             "avg_distance_by_transport": afstand_per_transport,
             "classes": klas_data,
+            "transport_per_student": leerling_data,
         }

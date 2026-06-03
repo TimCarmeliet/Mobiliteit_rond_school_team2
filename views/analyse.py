@@ -34,7 +34,16 @@ def toon_analyse(view):
 
     knoppen = {}
 
-    knop_stijl = {"fg": "white","activeforeground": "white","bd": 0,"relief": "flat","padx": 18,"pady": 9,"font": ("Arial", 9, "bold"),"cursor": "hand2",}
+    knop_stijl = {
+        "fg": "white",
+        "activeforeground": "white",
+        "bd": 0,
+        "relief": "flat",
+        "padx": 18,
+        "pady": 9,
+        "font": ("Arial", 9, "bold"),
+        "cursor": "hand2",
+    }
 
     def maak_analyse_leeg():
         for widget in analyse_frame.winfo_children():
@@ -52,75 +61,76 @@ def toon_analyse(view):
         update_knoppen()
         maak_analyse_leeg()
 
-        frame_vervoer = maak_kader(
+        frame = maak_kader(
             analyse_frame,
             titel="Aantal per vervoersmiddel",
             verticalSpace=0,
             horizontalSpace=0,
             header_kleur=blauw,
         )
-        frame_vervoer.pack_configure(fill="both", expand=True)
+        frame.pack(fill="both", expand=True)
 
-        tabel_vervoer = maak_tabel(
-            frame_vervoer,
+        tabel = maak_tabel(
+            frame,
             kolommen=["Vervoer", "Aantal verplaatsingen"],
             data=analyse_data["transport"],
         )
 
-        tabel_vervoer.column("Vervoer", width=220, anchor="w")
-        tabel_vervoer.column("Aantal verplaatsingen", width=150, anchor="center")
+        tabel.column("Vervoer", width=220, anchor="w")
+        tabel.column("Aantal verplaatsingen", width=150, anchor="center")
 
     def toon_afstand():
         actieve_analyse.set("afstand")
         update_knoppen()
         maak_analyse_leeg()
 
-        frame_afstand = maak_kader(
+        frame = maak_kader(
             analyse_frame,
             titel="Gemiddelde afstand",
             verticalSpace=0,
             horizontalSpace=0,
             header_kleur=blauw,
         )
-        frame_afstand.pack_configure(fill="both", expand=True)
+        frame.pack(fill="both", expand=True)
 
         totaal_tekst = _format_getal(analyse_data["avg_distance"], " km")
 
         tk.Label(
-            frame_afstand,
+            frame,
             text=f"Gemiddelde afstand alle studenten: {totaal_tekst}",
             bg="white",
+            fg=donker_grijs,
             font=("Arial", 11, "bold"),
             anchor="w",
             padx=10,
             pady=10,
         ).pack(fill="x")
 
-        tabel_afstand = maak_tabel(
-            frame_afstand,
+        tabel = maak_tabel(
+            frame,
             kolommen=["Vervoer", "Gemiddelde afstand"],
             data=analyse_data["avg_distance_by_transport"],
         )
 
-        tabel_afstand.column("Vervoer", width=220, anchor="w")
-        tabel_afstand.column("Gemiddelde afstand", width=150, anchor="center")
+        tabel.column("Vervoer", width=220, anchor="w")
+        tabel.column("Gemiddelde afstand", width=150, anchor="center")
 
     def toon_klassen():
         actieve_analyse.set("klassen")
         update_knoppen()
         maak_analyse_leeg()
 
-        frame_klas = maak_kader(
+        frame = maak_kader(
             analyse_frame,
             titel="Overzicht per klas",
             verticalSpace=0,
             horizontalSpace=0,
             header_kleur=blauw,
         )
-        frame_klas.pack_configure(fill="both", expand=True)
+        frame.pack(fill="both", expand=True)
 
-        tabel_klas = maak_tabel(
-            frame_klas,
+        tabel = maak_tabel(
+            frame,
             kolommen=[
                 "Klas",
                 "Aantal studenten",
@@ -130,10 +140,33 @@ def toon_analyse(view):
             data=analyse_data["classes"],
         )
 
-        tabel_klas.column("Klas", width=80, anchor="center")
-        tabel_klas.column("Aantal studenten", width=120, anchor="center")
-        tabel_klas.column("Gemiddelde afstand", width=140, anchor="center")
-        tabel_klas.column("Vervoersmiddelen", width=300, anchor="w")
+        tabel.column("Klas", width=80, anchor="center")
+        tabel.column("Aantal studenten", width=120, anchor="center")
+        tabel.column("Gemiddelde afstand", width=140, anchor="center")
+        tabel.column("Vervoersmiddelen", width=300, anchor="w")
+
+    def toon_per_leerling():
+        actieve_analyse.set("leerling")
+        update_knoppen()
+        maak_analyse_leeg()
+
+        frame = maak_kader(
+            analyse_frame,
+            titel="Aantal vervoersmiddelen per leerling",
+            verticalSpace=0,
+            horizontalSpace=0,
+            header_kleur=blauw,
+        )
+        frame.pack(fill="both", expand=True)
+
+        tabel = maak_tabel(
+            frame,
+            kolommen=["Leerling", "Aantal vervoer"],
+            data=analyse_data["transport_per_student"],
+        )
+
+        tabel.column("Leerling", width=220, anchor="w")
+        tabel.column("Aantal vervoer", width=180, anchor="center")
 
     knoppen["vervoer"] = tk.Button(
         nav_center,
@@ -158,5 +191,13 @@ def toon_analyse(view):
         **knop_stijl,
     )
     knoppen["klassen"].pack(side="left")
+
+    knoppen["leerling"] = tk.Button(
+        nav_center,
+        text="Per leerling",
+        command=toon_per_leerling,
+        **knop_stijl,
+    )
+    knoppen["leerling"].pack(side="left")
 
     toon_vervoer()
