@@ -2,8 +2,7 @@ import tkinter as tk
 #import pandas as pd
 from main_model import Model
 from main_controller import Controller
-from main_view import mainView
-from tab_logs import LogsTab
+from views.main_view import mainView
 from analyse import AnalyseTab
 
 if __name__ == "__main__":
@@ -11,7 +10,7 @@ if __name__ == "__main__":
 
     model = Model()
     controller = Controller(model)
-    view = LogsTab(root, controller)
+    view = mainView(root, controller)
 
-    root.mainloop()
+    root.mainloop() 
     

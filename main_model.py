@@ -1,9 +1,10 @@
 import sqlite3
 from pathlib import Path
 
-# zelfde pad als model_sql.py
+
 BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = BASE_DIR / "school.db"
+
 
 class Model:
     def __init__(self):
@@ -71,9 +72,22 @@ class Model:
     def get_transport(self):
         return self.conn.execute("SELECT * FROM Transport").fetchall()
 
+    def update_transport(self, transport_id, t):
+        self.conn.execute(
+            "UPDATE Transport SET type=? WHERE id=?",
+            (t, transport_id)
+        )
+        self.conn.commit()
+
     def delete_transport(self, transport_id):
         self.conn.execute("DELETE FROM Transport WHERE id=?", (transport_id,))
         self.conn.commit()
+
+    def transport_in_use(self, transport_id):
+        return self.conn.execute(
+            "SELECT COUNT(*) FROM Mobility_log WHERE transport_id=?",
+            (transport_id,)
+        ).fetchone()[0]
 
     # MOBILITY
     def add_mobility(self, student_id, transport_id, datum):
@@ -86,17 +100,57 @@ class Model:
     def get_mobility(self):
         return self.conn.execute("SELECT * FROM Mobility_log").fetchall()
 
+    def get_mobility_overview(self):
+        return self.conn.execute(
+            """
+            SELECT
+                Mobility_log.id,
+                Students.naam,
+                Transport.type,
+                Mobility_log.datum
+            FROM Mobility_log
+            JOIN Students ON Mobility_log.student_id = Students.id
+            JOIN Transport ON Mobility_log.transport_id = Transport.id
+            ORDER BY Mobility_log.id
+            """
+        ).fetchall()
+
+    def update_mobility(self, mobility_id, student_id, transport_id, datum):
+        self.conn.execute(
+            "UPDATE Mobility_log SET student_id=?, transport_id=?, datum=? WHERE id=?",
+            (student_id, transport_id, datum, mobility_id)
+        )
+        self.conn.commit()
+
+    def delete_mobility(self, mobility_id):
+        self.conn.execute("DELETE FROM Mobility_log WHERE id=?", (mobility_id,))
+        self.conn.commit()
+
     # ANALYSE
     def count_transport(self):
         return self.conn.execute(
             "SELECT transport_id, COUNT(*) FROM Mobility_log GROUP BY transport_id"
         ).fetchall()
 
+    def get_transport_verdeling(self):
+        transport = self.conn.execute("SELECT id, type FROM Transport").fetchall()
+        counts = self.conn.execute(
+            "SELECT transport_id, COUNT(*) FROM Mobility_log GROUP BY transport_id"
+        ).fetchall()
+        counts_dict = {row[0]: row[1] for row in counts}
+
+        resultaat = []
+        for transport_id, transport_type in transport:
+            aantal = counts_dict.get(transport_id, 0)
+            resultaat.append((transport_type, aantal))
+
+        return resultaat
+
     def avg_distance(self):
         return self.conn.execute(
             "SELECT AVG(afstand) FROM Students"
-        ).fetchone()[0] 
-    
+        ).fetchone()[0]
+
     def fetch_all(self, query, params=()):
         cursor = self.conn.cursor()
         cursor.execute(query, params)
