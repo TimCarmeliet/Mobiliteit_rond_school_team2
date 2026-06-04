@@ -52,6 +52,25 @@ class Controller:
         rows = self.model.get_students()
         return [(r[0], r[1], r[2], f"{r[3]} km") for r in rows]
 
+    def get_students_filtered_sorted(self, zoek_naam="", sorteer_op="id"):
+        rows = self.model.get_students()
+
+        # Zoekfunctie op studentnaam (Python filtering)
+        if zoek_naam:
+            rows = [r for r in rows if zoek_naam.lower() in r[1].lower()]
+
+        # Sorteren van studenten (Python sorting)
+        if sorteer_op == "afstand":
+            rows = sorted(rows, key=lambda r: r[3])
+        elif sorteer_op == "klas":
+            rows = sorted(rows, key=lambda r: (r[2].lower(), r[1].lower()))
+        elif sorteer_op == "naam":
+            rows = sorted(rows, key=lambda r: r[1].lower())
+        else:
+            rows = sorted(rows, key=lambda r: r[0])
+
+        return [(r[0], r[1], r[2], f"{r[3]} km") for r in rows]
+
     def update_student(self, student_id, naam, klas, afstand):
         student_id = self._to_int(student_id, "Student id")
         if isinstance(student_id, str):

@@ -279,19 +279,31 @@ class Model:
 
 
     def fetch_all(self, query, params=()):
-        cursor = self.conn.cursor()
-        cursor.execute(query, params)
-        return cursor.fetchall()
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute(query, params)
+            return cursor.fetchall()
+        except sqlite3.Error as e:
+            print(f"❌ SQL ERROR in fetch_all:\nQuery: {query}\nParams: {params}\nFout: {e}")
+            raise e
 
     def fetch_one(self, query, params=()):
-        cursor = self.conn.cursor()
-        cursor.execute(query, params)
-        return cursor.fetchone()
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute(query, params)
+            return cursor.fetchone()
+        except sqlite3.Error as e:
+            print(f"❌ SQL ERROR in fetch_one:\nQuery: {query}\nParams: {params}\nFout: {e}")
+            raise e
 
     def execute(self, query, params=()):
-        cursor = self.conn.cursor()
-        cursor.execute(query, params)
-        self.conn.commit()
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute(query, params)
+            self.conn.commit()
+        except sqlite3.Error as e:
+            print(f"❌ SQL ERROR in execute:\nQuery: {query}\nParams: {params}\nFout: {e}")
+            raise e
 
 
     # ── CO2-UITBREIDING (uitbreiding Ouadie) ──────────────────────────────────
