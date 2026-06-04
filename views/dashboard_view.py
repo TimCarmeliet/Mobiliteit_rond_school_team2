@@ -90,6 +90,11 @@ def toon_dashboard(view):
     notebook.add(tab_co2, text="CO₂ analyse")
     toon_co2_dashboard(view, tab_co2)
 
+    # ── Tab 5: Grafiek per leerling ───────────────────────────────────────────
+    tab_leerling = tk.Frame(notebook, bg=grijs)
+    notebook.add(tab_leerling, text="Grafiek per leerling")
+    _toon_leerling_dashboard(view, tab_leerling)
+
 
 
 
@@ -396,4 +401,131 @@ def _toon_afstand_dashboard(view, parent):
         canvas = FigureCanvasTkAgg(fig, master=grafiek_frame)
         canvas.draw()
         canvas.get_tk_widget().pack(fill="both", expand=True)
+
+
+def _toon_leerling_dashboard(view, parent):
+    """
+    Toont een grafiek per geselecteerde leerling.
+    Bevat:
+      - Dropdown voor leerlingselectie
+      - Dropdown voor grafiektype (Cirkeldiagram / Balkdiagram)
+      - Matplotlib grafiek die de verdeling van vervoersmiddelen toont.
+    """
+    donker_grijs = "#333333"
+
+    main_frame = tk.Frame(parent, bg=grijs)
+    main_frame.pack(fill="both", expand=True, padx=20, pady=20)
+
+    # Boven: Selectie-frame
+    selectie_frame = tk.LabelFrame(
+        main_frame,
+        text="Opties",
+        bg="white",
+        fg=donker_grijs,
+        font=("Arial", 9, "bold"),
+        padx=10,
+        pady=8
+    )
+    selectie_frame.pack(fill="x", pady=(0, 15))
+
+    # Leerling dropdown
+    tk.Label(selectie_frame, text="Leerling:", bg="white", font=("Arial", 9, "bold"), fg=donker_grijs).grid(row=0, column=0, padx=(5, 5), sticky="w")
+    
+    students = view.controller.get_students()  # lijst van (id, naam, klas, afstand)
+    student_namen = sorted([s[1] for s in students])
+    
+    leerling_var = tk.StringVar()
+    leerling_cb = ttk.Combobox(selectie_frame, textvariable=leerling_var, values=student_namen, state="readonly", width=30)
+    leerling_cb.grid(row=0, column=1, padx=(0, 20))
+    if student_namen:
+        leerling_cb.set(student_namen[0])
+
+    # Grafiektype dropdown
+    tk.Label(selectie_frame, text="Grafiektype:", bg="white", font=("Arial", 9, "bold"), fg=donker_grijs).grid(row=0, column=2, padx=(5, 5), sticky="w")
+    type_var = tk.StringVar(value="Cirkeldiagram")
+    type_cb = ttk.Combobox(selectie_frame, textvariable=type_var, values=["Cirkeldiagram", "Balkdiagram"], state="readonly", width=15)
+    type_cb.grid(row=0, column=3, padx=(0, 20))
+
+    # Grafiek container
+    grafiek_kader = maak_kader(main_frame, titel="Vervoersverdeling leerling", header_kleur=blauw)
+    grafiek_kader.pack(fill="both", expand=True)
+    
+    grafiek_container = tk.Frame(grafiek_kader, bg="white")
+    grafiek_container.pack(fill="both", expand=True, padx=10, pady=10)
+
+    def update_grafiek(*args):
+        # Oude widgets verwijderen
+        for widget in grafiek_container.winfo_children():
+            widget.destroy()
+
+        naam = leerling_var.get()
+        if not naam:
+            return
+
+        # Vervoersdata van de geselecteerde leerling tellen
+        logs = view.controller.get_mobility_overview() # (id, naam, type, datum)
+        verplaatsingen = [log[2] for log in logs if log[1] == naam]
+
+        if not verplaatsingen:
+            tk.Label(
+                grafiek_container,
+                text=f"Geen verplaatsingsgegevens gevonden voor {naam}.",
+                bg="white",
+                font=("Arial", 11),
+                fg=donker_grijs
+            ).pack(pady=40)
+            return
+
+        # Telling
+        telling = {}
+        for v in verplaatsingen:
+            telling[v] = telling.get(v, 0) + 1
+
+        labels = sorted(telling.keys())
+        waarden = [telling[l] for l in labels]
+
+        fig, ax = plt.subplots(figsize=(5, 4))
+        fig.patch.set_facecolor("white")
+
+        grafiek_type = type_var.get()
+        kleuren = ["#185FA5", "#2f7d32", "#b3261e", "#f0a500", "#9b59b6"]
+
+        if grafiek_type == "Balkdiagram":
+            balken = ax.bar(labels, waarden, color=kleuren[:len(labels)])
+            # Waarde boven elke balk tonen
+            for balk in balken:
+                hoogte = balk.get_height()
+                ax.text(
+                    balk.get_x() + balk.get_width() / 2,
+                    hoogte + 0.1,
+                    str(int(hoogte)),
+                    ha="center", va="bottom", fontsize=10, fontweight="bold", color=donker_grijs
+                )
+            ax.set_xlabel("Vervoersmiddel", fontsize=9)
+            ax.set_ylabel("Aantal verplaatsingen", fontsize=9)
+            ax.set_ylim(0, max(waarden) + max(waarden)*0.15 + 1)
+        else:  # Cirkeldiagram / Taartdiagram
+            ax.pie(
+                waarden,
+                labels=labels,
+                colors=kleuren[:len(labels)],
+                autopct="%1.1f%%",
+                startangle=90,
+                textprops={'fontsize': 10, 'color': donker_grijs}
+            )
+            ax.axis("equal")
+
+        ax.set_title(f"Vervoerskeuze van {naam}", fontsize=12, fontweight="bold", pad=15)
+        fig.tight_layout()
+
+        canvas = FigureCanvasTkAgg(fig, master=grafiek_container)
+        canvas.draw()
+        canvas.get_tk_widget().pack(fill="both", expand=True)
+
+    # Binden aan dropdown selecties
+    leerling_cb.bind("<<ComboboxSelected>>", update_grafiek)
+    type_cb.bind("<<ComboboxSelected>>", update_grafiek)
+
+    # Initieel inladen
+    update_grafiek()
 
