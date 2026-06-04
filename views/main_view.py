@@ -6,8 +6,8 @@ from views.student_view import toon_student
 from views.verplaatsing_view import toon_verplaatsing
 from views.view_transport import toon_vervoer_pagina
 from views.dashboard_view import toon_dashboard
-from views.afwezigheid_view import toon_afwezigheid  # uitbreiding Viggo
 from views.analyse_view import toon_analyse
+
 
 
 # kleur
@@ -44,16 +44,12 @@ class mainView:
         tk.Button(self.topnav, text="dashboard", command=self.dashboard, **self.styleButton).pack(side="left")
         tk.Button(self.topnav, text="verplaatsing", command=self.verplaatsing, **self.styleButton).pack(side="left")
         tk.Button(self.topnav, text="analyse", command=self.analyse, **self.styleButton).pack(side="left")
-        # Uitbreiding Viggo: navigatieknop voor het afwezigheidsscherm
-        tk.Button(self.topnav, text="afwezigheid", command=self.afwezigheid, **self.styleButton).pack(side="left")
-
         self.student_content = tk.Frame(self.root, bg=grijs)
         self.vervoer_content = tk.Frame(self.root, bg=grijs)
         self.dashboard_content = tk.Frame(self.root, bg=grijs)
         self.verplaatsing_content = tk.Frame(self.root, bg=grijs)
         self.analyse_content = tk.Frame(self.root, bg=grijs)
-        # Uitbreiding Viggo: frame voor het afwezigheidsscherm
-        self.afwezigheid_content = tk.Frame(self.root, bg=grijs)
+
 
         self.student()
 
@@ -63,7 +59,6 @@ class mainView:
         self.dashboard_content.forget()
         self.verplaatsing_content.forget()
         self.analyse_content.forget()
-        self.afwezigheid_content.forget()  # uitbreiding Viggo
 
     def _label_stijl(self):
         return {
@@ -112,9 +107,7 @@ class mainView:
     def dashboard(self):
         toon_dashboard(self)
 
-    def afwezigheid(self):
-        """Uitbreiding Viggo: laad het scherm voor aanwezigheidsbeheer."""
-        toon_afwezigheid(self)
+
 
     def verplaatsing(self):
         toon_verplaatsing(self)

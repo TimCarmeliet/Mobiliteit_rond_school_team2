@@ -4,6 +4,8 @@ from tkinter import ttk
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from views.handy_view import maak_kader, maak_tabel
+from views.co2_view import toon_co2_dashboard
+
 
 
 # kleuren
@@ -83,10 +85,11 @@ def toon_dashboard(view):
     notebook.add(tab_afstand, text="Afstand analyse")
     _toon_afstand_dashboard(view, tab_afstand)
 
-    # ── Tab 4: Afwezigheid (uitbreiding Viggo) ────────────────────────────────
-    tab_afwezigheid = tk.Frame(notebook, bg=grijs)
-    notebook.add(tab_afwezigheid, text="Afwezigheid & Aanwezigheid")
-    _toon_afwezigheid_dashboard(view, tab_afwezigheid)
+    # ── Tab 4: CO2-uitstoot (uitbreiding Ouadie) ──────────────────────────────
+    tab_co2 = tk.Frame(notebook, bg=grijs)
+    notebook.add(tab_co2, text="CO₂ analyse")
+    toon_co2_dashboard(view, tab_co2)
+
 
 
 
@@ -251,22 +254,7 @@ def _toon_klas_dashboard(view, parent):
     canvas.get_tk_widget().pack(fill="both", expand=True)
 
 
-# ── Tab 4: Afwezigheid (uitbreiding Viggo) ────────────────────────────────────
 
-def _toon_afwezigheid_dashboard(view, parent):
-    """
-    Placeholder voor de afwezigheidsanalyse (Uitbreiding Viggo)
-    om crashes te voorkomen aangezien deze niet is geïmplementeerd op deze branch.
-    """
-    donker_grijs = "#333333"
-    lbl = tk.Label(
-        parent,
-        text="Afwezigheidsanalyse (Uitbreiding Viggo) is niet beschikbaar op deze branch.",
-        bg=grijs,
-        fg=donker_grijs,
-        font=("Arial", 11)
-    )
-    lbl.pack(pady=40)
 
 
 # ── Tab 3: Afstand analyse ───────────────────────────────────────────────────
