@@ -4,7 +4,7 @@ from tkinter import ttk
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from views.handy_view import maak_kader, maak_tabel
-from views.co2_view import toon_co2_dashboard
+from ignored.co2_view import toon_co2_dashboard
 
 
 
