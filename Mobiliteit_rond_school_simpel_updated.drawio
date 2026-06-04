@@ -16,16 +16,16 @@
         <mxCell id="B3Lsp_3KpATrrEOD13gi-4" parent="B3Lsp_3KpATrrEOD13gi-1" style="text;align=left;spacingLeft=8;fontStyle=0;fontSize=10;" value="+ create_tables() : void&#xa;+ add_student(naam, klas, afstand) : void&#xa;+ get_students() : list&#xa;+ update_student(id, naam, klas, afstand) : void&#xa;+ delete_student(id) : void&#xa;+ add_transport(type) : void&#xa;+ get_transport() : list&#xa;+ delete_transport(id) : void&#xa;+ add_mobility(student_id, transport_id, datum) : void&#xa;+ get_mobility() : list&#xa;+ count_transport() : list&#xa;+ avg_distance() : float&#xa;+ fetch_all(query, params) : list&#xa;+ fetch_one(query, params) : Row&#xa;+ execute(query, params) : void" vertex="1">
           <mxGeometry height="200" width="260" y="74" as="geometry" />
         </mxCell>
-        <mxCell id="B3Lsp_3KpATrrEOD13gi-5" parent="1" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#d5e8d4;strokeColor=#82b366;" value="ModelSQL" vertex="1">
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-5" parent="1" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#d5e8d4;strokeColor=#82b366;" value="Database Builder (transform.py)" vertex="1">
           <mxGeometry height="220" width="260" x="50" y="660" as="geometry" />
         </mxCell>
-        <mxCell id="B3Lsp_3KpATrrEOD13gi-6" parent="B3Lsp_3KpATrrEOD13gi-5" style="text;align=left;spacingLeft=8;" value="- conn : Connection&#xa;- DB_PATH : Path" vertex="1">
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-6" parent="B3Lsp_3KpATrrEOD13gi-5" style="text;align=left;spacingLeft=8;" value="- TABLES : dict&#xa;- DB_PATH : Path" vertex="1">
           <mxGeometry height="40" width="260" y="26" as="geometry" />
         </mxCell>
         <mxCell id="B3Lsp_3KpATrrEOD13gi-7" parent="B3Lsp_3KpATrrEOD13gi-5" style="line;strokeColor=#82b366;" value="" vertex="1">
           <mxGeometry height="8" width="260" y="66" as="geometry" />
         </mxCell>
-        <mxCell id="B3Lsp_3KpATrrEOD13gi-8" parent="B3Lsp_3KpATrrEOD13gi-5" style="text;align=left;spacingLeft=8;fontSize=10;" value="+ maak_tabellen() : void&#xa;+ import_transport() : void&#xa;+ import_students() : void&#xa;+ import_mobility_logs() : void&#xa;+ import_testdata() : void&#xa;+ run_import() : void" vertex="1">
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-8" parent="B3Lsp_3KpATrrEOD13gi-5" style="text;align=left;spacingLeft=8;fontSize=10;" value="+ build_database() : dict&#xa;+ create_tables(conn) : void&#xa;+ import_students(conn) : int&#xa;+ import_transport(conn) : int&#xa;+ import_mobility_log(conn) : int&#xa;+ find_csv_file(pattern) : Path&#xa;+ read_csv_rows(path, cols) : list" vertex="1">
           <mxGeometry height="140" width="260" y="74" as="geometry" />
         </mxCell>
         <mxCell id="B3Lsp_3KpATrrEOD13gi-9" parent="1" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#fff2cc;strokeColor=#d6b656;" value="Controller" vertex="1">
@@ -37,7 +37,7 @@
         <mxCell id="B3Lsp_3KpATrrEOD13gi-11" parent="B3Lsp_3KpATrrEOD13gi-9" style="line;strokeColor=#d6b656;" value="" vertex="1">
           <mxGeometry height="8" width="280" y="56" as="geometry" />
         </mxCell>
-        <mxCell id="B3Lsp_3KpATrrEOD13gi-12" parent="B3Lsp_3KpATrrEOD13gi-9" style="text;align=left;spacingLeft=8;fontSize=10;" value="+ add_student(naam, klas, afstand) : str&#xa;+ get_students() : list&#xa;+ get_all_students() : list&#xa;+ update_student(id, naam, klas, afstand) : str&#xa;+ delete_student(id) : str&#xa;+ add_transport(type) : str&#xa;+ get_transport() : list&#xa;+ delete_transport(id) : str&#xa;+ add_mobility(student_id, transport_id, datum) : str&#xa;+ get_mobility() : list&#xa;+ get_analysis() : dict&#xa;- _to_int(value, field_name) : int&#xa;- _student_exists(id) : bool&#xa;- _transport_exists(id) : bool" vertex="1">
+        <mxCell id="B3Lsp_3KpATrrEOD13gi-12" parent="B3Lsp_3KpATrrEOD13gi-9" style="text;align=left;spacingLeft=8;fontSize=10;" value="+ add_student(naam, klas, afstand) : str&#xa;+ get_students() : list&#xa;+ get_all_students() : list&#xa;+ get_students_filtered_sorted(zoek, sorteer) : list&#xa;+ update_student(id, naam, klas, afstand) : str&#xa;+ delete_student(id) : str&#xa;+ add_transport(type) : str&#xa;+ get_transport() : list&#xa;+ delete_transport(id) : str&#xa;+ add_mobility(student_id, transport_id, datum) : str&#xa;+ get_mobility() : list&#xa;+ get_co2_data() : list&#xa;+ get_analysis() : dict&#xa;- _to_int(value, field_name) : int&#xa;- _student_exists(id) : bool&#xa;- _transport_exists(id) : bool" vertex="1">
           <mxGeometry height="240" width="280" y="64" as="geometry" />
         </mxCell>
         <mxCell id="B3Lsp_3KpATrrEOD13gi-13" parent="1" style="swimlane;fontStyle=1;align=center;startSize=26;fillColor=#f8cecc;strokeColor=#b85450;" value="mainView" vertex="1">
@@ -121,10 +121,10 @@
         <mxCell id="simpel_db_empty" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" value="database.db&#xa;zelfde tabellen, leeg" vertex="1">
           <mxGeometry height="70" width="170" x="610" y="820" as="geometry" />
         </mxCell>
-        <mxCell id="simpel_co2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" value="co2.py&#xa;los klein bestand" vertex="1">
+        <mxCell id="simpel_co2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" value="views/co2_view.py&#xa;CO₂ analyses &amp; UI" vertex="1">
           <mxGeometry height="50" width="160" x="880" y="930" as="geometry" />
         </mxCell>
-        <mxCell id="simpel_temp" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" value="temptestfile.py&#xa;test/voorbeeld klassendiagram" vertex="1">
+        <mxCell id="simpel_temp" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" value="views/dashboard_view.py&#xa;Beheert tabbladen &amp; grafieken" vertex="1">
           <mxGeometry height="50" width="220" x="1050" y="930" as="geometry" />
         </mxCell>
         <mxCell id="simpel_e1" edge="1" parent="1" source="simpel_main" style="endArrow=block;html=1;rounded=0;strokeColor=#666666;" target="B3Lsp_3KpATrrEOD13gi-9" value="maakt Controller">
