@@ -112,23 +112,23 @@ def import_students(connection):
         TABLES["students"]["columns"]
     )
 
-    connection.executemany(
-        """
-        INSERT INTO students (id, naam, klas, afstand)
-        VALUES (?, ?, ?, ?)
-        """,
-        (
-            (
-                int(row["id"]),
-                row["naam"],
-                row["klas"],
-                float(row["afstand"])
+    succesvol = 0
+    for row in rows:
+        try:
+            student_id = int(row["id"])
+            naam = row["naam"].strip()
+            klas = row["klas"].strip()
+            afstand = float(row["afstand"])
+            
+            connection.execute(
+                "INSERT INTO students (id, naam, klas, afstand) VALUES (?, ?, ?, ?)",
+                (student_id, naam, klas, afstand)
             )
-            for row in rows
-        ),
-    )
+            succesvol += 1
+        except (ValueError, sqlite3.Error) as e:
+            print(f"⚠️ Fout bij importeren student rij {row.get('id', 'onbekend')}: {e}, overgeslagen.")
 
-    return len(rows)
+    return succesvol
 
 
 def import_transport(connection):
@@ -141,21 +141,21 @@ def import_transport(connection):
         TABLES["transport"]["columns"]
     )
 
-    connection.executemany(
-        """
-        INSERT INTO transport (id, type)
-        VALUES (?, ?)
-        """,
-        (
-            (
-                int(row["id"]),
-                row["type"]
+    succesvol = 0
+    for row in rows:
+        try:
+            transport_id = int(row["id"])
+            t_type = row["type"].strip()
+            
+            connection.execute(
+                "INSERT INTO transport (id, type) VALUES (?, ?)",
+                (transport_id, t_type)
             )
-            for row in rows
-        ),
-    )
+            succesvol += 1
+        except (ValueError, sqlite3.Error) as e:
+            print(f"⚠️ Fout bij importeren transport rij {row.get('id', 'onbekend')}: {e}, overgeslagen.")
 
-    return len(rows)
+    return succesvol
 
 
 def import_mobility_log(connection):
@@ -168,28 +168,39 @@ def import_mobility_log(connection):
         TABLES["mobility_log"]["columns"]
     )
 
-    connection.executemany(
-        """
-        INSERT INTO mobility_log (
-            id,
-            student_id,
-            transport_id,
-            datum
-        )
-        VALUES (?, ?, ?, ?)
-        """,
-        (
-            (
-                int(row["id"]),
-                int(row["student_id"]),
-                int(row["transport_id"]),
-                row["datum"]
-            )
-            for row in rows
-        ),
-    )
+    # Geldige IDs ophalen uit DB om foreign key mismatches te voorkomen
+    cursor = connection.cursor()
+    student_ids = {r[0] for r in cursor.execute("SELECT id FROM students").fetchall()}
+    transport_ids = {r[0] for r in cursor.execute("SELECT id FROM transport").fetchall()}
 
-    return len(rows)
+    succesvol = 0
+    for row in rows:
+        try:
+            log_id = int(row["id"])
+            student_id = int(row["student_id"])
+            transport_id = int(row["transport_id"])
+            datum = row["datum"].strip()
+            
+            # Controleer foreign keys
+            if student_id not in student_ids:
+                print(f"⚠️ Log {log_id}: Student ID {student_id} bestaat niet in de students tabel. Rij overgeslagen.")
+                continue
+            if transport_id not in transport_ids:
+                print(f"⚠️ Log {log_id}: Transport ID {transport_id} bestaat niet in de transport tabel. Rij overgeslagen.")
+                continue
+
+            connection.execute(
+                """
+                INSERT INTO mobility_log (id, student_id, transport_id, datum)
+                VALUES (?, ?, ?, ?)
+                """,
+                (log_id, student_id, transport_id, datum)
+            )
+            succesvol += 1
+        except (ValueError, sqlite3.Error) as e:
+            print(f"⚠️ Fout bij importeren mobility log rij {row.get('id', 'onbekend')}: {e}, overgeslagen.")
+
+    return succesvol
 
 
 def build_database():
