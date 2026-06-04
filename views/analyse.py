@@ -159,6 +159,32 @@ def toon_analyse(view):
         )
         frame.pack(fill="both", expand=True)
 
+        # Samenvatting boven de tabel tonen
+        summary_frame = tk.Frame(frame, bg="white", padx=10, pady=10)
+        summary_frame.pack(fill="x", before=None)
+
+        counts = {1: 0, 2: 0, 3: 0, 4: 0}
+        for _, aantal in analyse_data["transport_per_student"]:
+            counts[aantal] = counts.get(aantal, 0) + 1
+
+        summary_text = (
+            f"Aantal leerlingen per aantal gebruikte vervoersmiddelen:\n"
+            f"   • 1 vervoersmiddel: {counts.get(1, 0)} leerlingen\n"
+            f"   • 2 vervoersmiddelen: {counts.get(2, 0)} leerlingen\n"
+            f"   • 3 vervoersmiddelen: {counts.get(3, 0)} leerlingen\n"
+            f"   • 4 vervoersmiddelen: {counts.get(4, 0)} leerlingen"
+        )
+
+        tk.Label(
+            summary_frame,
+            text=summary_text,
+            bg="white",
+            fg=donker_grijs,
+            font=("Arial", 10, "bold"),
+            justify="left",
+            anchor="w"
+        ).pack(fill="x", pady=(0, 10))
+
         tabel = maak_tabel(
             frame,
             kolommen=["Leerling", "Aantal vervoer"],
