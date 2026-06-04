@@ -4,7 +4,7 @@ from tkinter import ttk
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from views.handy_view import maak_kader, maak_tabel
-from views.co2_view import toon_co2_dashboard
+
 
 
 
@@ -70,27 +70,24 @@ def toon_dashboard(view):
     notebook = ttk.Notebook(view.dashboard_content)
     notebook.pack(fill="both", expand=True, padx=5, pady=5)
 
-    # ── Tab 1: Vervoersmiddelen (bestaande functionaliteit) ───────────────────
+    # ──  Vervoersmiddelen (bestaande functionaliteit) 
     tab_vervoer = tk.Frame(notebook, bg=grijs)
     notebook.add(tab_vervoer, text="Vervoersmiddelen")
     _toon_vervoer_tab(view, tab_vervoer)
 
-    # ── Tab 2: Overzicht per klas ─────────────────────────────────────────────
+    # ──  Overzicht per klas ──
     tab_klas = tk.Frame(notebook, bg=grijs)
     notebook.add(tab_klas, text="Overzicht per klas")
     _toon_klas_dashboard(view, tab_klas)
 
-    # ── Tab 3: Afstand analyse ────────────────────────────────────────────────
+    # ──Afstand analyse ─
     tab_afstand = tk.Frame(notebook, bg=grijs)
     notebook.add(tab_afstand, text="Afstand analyse")
     _toon_afstand_dashboard(view, tab_afstand)
 
-    # ── Tab 4: CO2-uitstoot (uitbreiding Ouadie) ──────────────────────────────
-    tab_co2 = tk.Frame(notebook, bg=grijs)
-    notebook.add(tab_co2, text="CO₂ analyse")
-    toon_co2_dashboard(view, tab_co2)
 
-    # ── Tab 5: Grafiek per leerling ───────────────────────────────────────────
+
+    # ── Grafiek per leerling ─
     tab_leerling = tk.Frame(notebook, bg=grijs)
     notebook.add(tab_leerling, text="Grafiek per leerling")
     _toon_leerling_dashboard(view, tab_leerling)
