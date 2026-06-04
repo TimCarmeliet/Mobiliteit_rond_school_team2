@@ -6,7 +6,7 @@ from views.student_view import toon_student
 from views.verplaatsing_view import toon_verplaatsing
 from views.dashboard_view import toon_dashboard
 from views.afwezigheid_view import toon_afwezigheid  # uitbreiding Viggo
-from views.analyse_view import toon_analyse
+from views.analyse import toon_analyse
 
 
 # kleur
