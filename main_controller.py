@@ -236,10 +236,86 @@ class Controller:
         return resultaat
 
     def get_analysis(self):
+        students = self.model.get_students()
+        transporten = self.model.get_transport()
+        mobility_logs = self.model.get_mobility()
+
+        student_per_id = {s[0]: s for s in students}
+        transport_naam_per_id = {t[0]: t[1] for t in transporten}
+
+        transport_tellingen = {t[0]: 0 for t in transporten}
+        afstanden_per_transport = {t[0]: [] for t in transporten}
+        vervoersmiddelen_per_klas = {}
+        vervoer_per_leerling = {}
+
+        for mobility in mobility_logs:
+            student_id = mobility[1]
+            transport_id = mobility[2]
+            student = student_per_id.get(student_id)
+
+            if transport_id in transport_tellingen:
+                transport_tellingen[transport_id] += 1
+
+            if student:
+                afstanden_per_transport.setdefault(transport_id, []).append(student[3])
+
+                klas = student[2]
+                vervoersmiddelen_per_klas.setdefault(klas, {})
+                vervoersmiddelen_per_klas[klas][transport_id] = (
+                    vervoersmiddelen_per_klas[klas].get(transport_id, 0) + 1
+                )
+                vervoer_per_leerling.setdefault(student_id, set()).add(transport_id)
+
+        transport_data = [
+            (transport_naam_per_id[t_id], aantal)
+            for t_id, aantal in transport_tellingen.items()
+        ]
+
+        afstand_per_transport = []
+        for t_id, afstanden in afstanden_per_transport.items():
+            if afstanden:
+                gemiddelde = sum(afstanden) / len(afstanden)
+                gemiddelde_tekst = f"{round(gemiddelde, 2)} km"
+            else:
+                gemiddelde_tekst = "Geen data"
+
+            afstand_per_transport.append(
+                (transport_naam_per_id.get(t_id, "Onbekend"), gemiddelde_tekst)
+            )
+
+        klas_data = []
+        klassen = sorted({s[2] for s in students})
+
+        for klas in klassen:
+            studenten = [s for s in students if s[2] == klas]
+            aantal = len(studenten)
+            gemiddelde = sum(s[3] for s in studenten) / aantal
+
+            verdeling = vervoersmiddelen_per_klas.get(klas, {})
+            if verdeling:
+                verdeling_tekst = ", ".join(
+                    f"{transport_naam_per_id.get(tid, 'Onbekend')}: {aantal}"
+                    for tid, aantal in verdeling.items()
+                )
+            else:
+                verdeling_tekst = "Geen verplaatsingen"
+
+            klas_data.append(
+                (klas, aantal, f"{round(gemiddelde, 2)} km", verdeling_tekst)
+            )
+
+        leerling_data = [
+            (student_per_id[s_id][1], len(transport_set))
+            for s_id, transport_set in vervoer_per_leerling.items()
+            if s_id in student_per_id
+        ]
         return {
-            "transport": self.model.count_transport(),
+            "transport": transport_data,
             "avg_distance": self.model.avg_distance(),
-            "avg_distance_per_transport": self.model.avg_distance_per_transport()
+            "avg_distance_by_transport": afstand_per_transport,
+            "avg_distance_per_transport": self.model.get_avg_distance_per_transport(),
+            "classes": klas_data,
+            "transport_per_student": leerling_data,
         }
 
 
