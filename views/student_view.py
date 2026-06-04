@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, ttk
 
 from views.handy_view import maak_kader, maak_tabel
 
@@ -178,6 +178,22 @@ def toon_student(view, tooltip_class):
     frame2 = maak_kader(view.student_content, titel=f"Overzicht studenten ({len(data)})", header_kleur=blauw)
     frame2.pack_configure(side="left", padx=(10, 20), pady=20, fill="both", expand=True, anchor="nw")
 
+    # Filter/zoek balk
+    filter_bar = tk.Frame(frame2, bg="white", padx=10, pady=5)
+    filter_bar.pack(fill="x", side="top", pady=(5, 0))
+
+    # Zoeken
+    tk.Label(filter_bar, text="Zoeken (naam):", bg="white", fg=donker_grijs, font=("Arial", 9, "bold")).pack(side="left", padx=(0, 5))
+    zoek_var = tk.StringVar()
+    zoek_entry = tk.Entry(filter_bar, textvariable=zoek_var, font=("Arial", 9), relief="solid", bd=1, width=15)
+    zoek_entry.pack(side="left", padx=(0, 15))
+
+    # Sorteren
+    tk.Label(filter_bar, text="Sorteren op:", bg="white", fg=donker_grijs, font=("Arial", 9, "bold")).pack(side="left", padx=(0, 5))
+    sort_var = tk.StringVar(value="Standaard")
+    sort_cb = ttk.Combobox(filter_bar, textvariable=sort_var, values=["Standaard", "Naam", "Afstand", "Klas"], state="readonly", width=10)
+    sort_cb.pack(side="left")
+
     tabel = maak_tabel(
         frame2,
         kolommen=["ID", "Naam", "Klas", "Afstand"],
@@ -187,6 +203,21 @@ def toon_student(view, tooltip_class):
     tabel.column("Naam", width=210)
     tabel.column("Klas", width=90, anchor="center")
     tabel.column("Afstand", width=110, anchor="e")
+
+    def update_tabel(*args):
+        zoek = zoek_var.get().strip()
+        sorteer = sort_var.get().lower()
+        if sorteer == "standaard":
+            sorteer = "id"
+            
+        gerealiseerde_data = view.controller.get_students_filtered_sorted(zoek, sorteer)
+        tabel.delete(*tabel.get_children())
+        for i, row in enumerate(gerealiseerde_data):
+            tag = "even" if i % 2 == 0 else "odd"
+            tabel.insert("", "end", values=row, tags=(tag,))
+
+    zoek_var.trace_add("write", update_tabel)
+    sort_cb.bind("<<ComboboxSelected>>", update_tabel)
 
     # klik op rij -> vult het formulier in
     def on_select(event):
