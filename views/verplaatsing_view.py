@@ -164,6 +164,15 @@ def toon_verplaatsing(view):
         frame2 = maak_kader(view.verplaatsing_content, titel=f"Overzicht verplaatsingen ({len(data)})", header_kleur=blauw)
         frame2.pack_configure(side="left", padx=(10, 20), pady=20, fill="both", expand=True, anchor="nw")
 
+        # Zoekbalk voor verplaatsingen
+        filter_bar = tk.Frame(frame2, bg="white", padx=10, pady=5)
+        filter_bar.pack(fill="x", side="top", pady=(5, 0))
+
+        tk.Label(filter_bar, text="Zoeken (naam):", bg="white", fg=donker_grijs, font=("Arial", 9, "bold")).pack(side="left", padx=(0, 5))
+        zoek_var = tk.StringVar()
+        zoek_entry = tk.Entry(filter_bar, textvariable=zoek_var, font=("Arial", 9), relief="solid", bd=1, width=20)
+        zoek_entry.pack(side="left")
+
         tabel = maak_tabel(
             frame2,
             kolommen=["ID", "Student", "Vervoer", "Datum"],
@@ -173,6 +182,20 @@ def toon_verplaatsing(view):
         tabel.column("Student", width=100, anchor="center")
         tabel.column("Vervoer", width=100, anchor="center")
         tabel.column("Datum", width=130, anchor="center")
+
+        def update_tabel(*args):
+            zoek = zoek_var.get().strip().lower()
+            tabel.delete(*tabel.get_children())
+            
+            gefilterde_data = data
+            if zoek:
+                gefilterde_data = [row for row in data if zoek in row[1].lower()]
+                
+            for i, row in enumerate(gefilterde_data):
+                tag = "even" if i % 2 == 0 else "odd"
+                tabel.insert("", "end", values=row, tags=(tag,))
+
+        zoek_var.trace_add("write", update_tabel)
 
         def on_select(event):
             geselecteerd = tabel.selection()
