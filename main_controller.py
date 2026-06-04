@@ -379,3 +379,12 @@ class Controller:
     def get_vervoer_vs_aanwezigheid(self):
         """Geeft de relatie tussen vervoersmiddel en aanwezigheid terug als dictionary."""
         return self.model.get_vervoer_vs_aanwezigheid()
+
+    def get_avg_distance_overall(self):
+        """Geeft de algemene gemiddelde afstand van alle leerlingen."""
+        return self.model.get_avg_distance_overall()
+
+    def get_avg_distance_per_transport(self):
+        """Geeft de gemiddelde afstand per vervoersmiddel."""
+        return self.model.get_avg_distance_per_transport()
+

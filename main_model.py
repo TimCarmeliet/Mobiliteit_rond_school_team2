@@ -245,6 +245,50 @@ class Model:
 
         return resultaat
 
+    def get_avg_distance_overall(self):
+        """
+        Berekent de gemiddelde afstand tot school van alle studenten.
+        Geeft een afgerond getal terug, of 0.0 als er geen data is.
+        """
+        row = self.conn.execute("SELECT AVG(afstand) FROM Students").fetchone()
+        return round(row[0], 2) if row and row[0] is not None else 0.0
+
+    def get_avg_distance_per_transport(self):
+        """
+        Berekent de gemiddelde afstand tot school per gebruikt vervoersmiddel.
+        Gebruikt GEEN SQL JOINs om te voldoen aan de projectfiche richtlijnen,
+        maar combineert de data in Python.
+        """
+        # Stap 1: studenten ophalen (id -> afstand)
+        students = self.fetch_all("SELECT id, afstand FROM Students")
+        student_distances = {row[0]: row[1] for row in students}
+
+        # Stap 2: transporttypen ophalen (id -> type)
+        transports = self.fetch_all("SELECT id, type FROM Transport")
+        transport_types = {row[0]: row[1] for row in transports}
+
+        # Stap 3: alle verplaatsingen ophalen (student_id, transport_id)
+        logs = self.fetch_all("SELECT student_id, transport_id FROM Mobility_log")
+
+        # Stap 4: tellers en sommen bijhouden per type vervoer
+        vervoer_stats = {} # {type: [som_afstand, aantal_verplaatsingen]}
+        for student_id, transport_id in logs:
+            dist = student_distances.get(student_id)
+            t_type = transport_types.get(transport_id)
+            if dist is not None and t_type is not None:
+                if t_type not in vervoer_stats:
+                    vervoer_stats[t_type] = [0.0, 0]
+                vervoer_stats[t_type][0] += dist
+                vervoer_stats[t_type][1] += 1
+
+        # Stap 5: gemiddelde berekenen per type
+        resultaat = []
+        for t_type, stats in sorted(vervoer_stats.items()):
+            gem = round(stats[0] / stats[1], 2) if stats[1] > 0 else 0.0
+            resultaat.append((t_type, gem))
+        return resultaat
+
+
     def fetch_all(self, query, params=()):
         cursor = self.conn.cursor()
         cursor.execute(query, params)

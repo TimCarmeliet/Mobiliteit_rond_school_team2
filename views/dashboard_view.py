@@ -1,8 +1,10 @@
 
 import tkinter as tk
+from tkinter import ttk
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from views.handy_view import maak_kader, maak_tabel
+
 
 # kleuren
 blauw = "#185FA5"
@@ -76,10 +78,16 @@ def toon_dashboard(view):
     notebook.add(tab_klas, text="Overzicht per klas")
     _toon_klas_dashboard(view, tab_klas)
 
-    # ── Tab 3: Afwezigheid (uitbreiding Viggo) ────────────────────────────────
+    # ── Tab 3: Afstand analyse ────────────────────────────────────────────────
+    tab_afstand = tk.Frame(notebook, bg=grijs)
+    notebook.add(tab_afstand, text="Afstand analyse")
+    _toon_afstand_dashboard(view, tab_afstand)
+
+    # ── Tab 4: Afwezigheid (uitbreiding Viggo) ────────────────────────────────
     tab_afwezigheid = tk.Frame(notebook, bg=grijs)
     notebook.add(tab_afwezigheid, text="Afwezigheid & Aanwezigheid")
     _toon_afwezigheid_dashboard(view, tab_afwezigheid)
+
 
 
 # ── Tab 1: Vervoersmiddelen ───────────────────────────────────────────────────
@@ -242,31 +250,162 @@ def _toon_klas_dashboard(view, parent):
     canvas.draw()
     canvas.get_tk_widget().pack(fill="both", expand=True)
 
-    # ── frame rechts: legende + cijfers ──
-    frame2 = maak_kader(view.dashboard_content, titel="Overzicht in cijfers", header_kleur=blauw)
-    frame2.pack_configure(side="left", padx=(0, 20), pady=20, anchor="nw")
 
-    # legende bovenaan
-    legende_frame = tk.Frame(frame2, bg="white", padx=10, pady=8)
-    legende_frame.pack(fill="x")
+# ── Tab 4: Afwezigheid (uitbreiding Viggo) ────────────────────────────────────
 
-    for i, label in enumerate(labels):
-        kleur = GRAFIEK_KLEUREN[i % len(GRAFIEK_KLEUREN)]
-        rij = tk.Frame(legende_frame, bg="white")
-        rij.pack(anchor="w", pady=2)
-        # kleurvakje
-        tk.Label(rij, bg=kleur, width=2, relief="flat").pack(side="left", padx=(0, 6))
-        tk.Label(rij, text=label, bg="white", font=("Arial", 9), anchor="w").pack(side="left")
+def _toon_afwezigheid_dashboard(view, parent):
+    """
+    Placeholder voor de afwezigheidsanalyse (Uitbreiding Viggo)
+    om crashes te voorkomen aangezien deze niet is geïmplementeerd op deze branch.
+    """
+    donker_grijs = "#333333"
+    lbl = tk.Label(
+        parent,
+        text="Afwezigheidsanalyse (Uitbreiding Viggo) is niet beschikbaar op deze branch.",
+        bg=grijs,
+        fg=donker_grijs,
+        font=("Arial", 11)
+    )
+    lbl.pack(pady=40)
 
-    # scheidingslijn
-    tk.Frame(frame2, height=1, bg="#cccccc").pack(fill="x", padx=10)
 
-    # tabel met cijfers
-    tabel_data = [
-        (rij[0], rij[1], f"{round(rij[1] / totaal * 100, 1)}%")
-        for rij in verdeling
+# ── Tab 3: Afstand analyse ───────────────────────────────────────────────────
+
+def _toon_afstand_dashboard(view, parent):
+    """
+    Toont de gemiddelde afstandsanalyse.
+    Links: tabel met gemiddelde afstand per vervoersmiddel + algemeen gemiddelde.
+    Rechts: balkdiagram met gemiddelde afstand per vervoersmiddel en een referentielijn.
+    """
+    # ── CONFIGURATIE (Makkelijk aanpasbaar) ──────────────────────────────────
+    TITEL_TABEL = "Gemiddelde afstand per vervoer"
+    TITEL_GRAFIEK = "Gemiddelde afstand tot school"
+    LABEL_X = "Vervoersmiddel"
+    LABEL_Y = "Afstand (km)"
+    REFERENTIE_LIJN_KLEUR = "#d63031"  # Rood voor de stippellijn
+    REFERENTIE_LIJN_STIJL = "--"
+
+    # Kleuren per vervoerstype (of fallback als het type niet bestaat)
+    KLEUR_MAP = {
+        "fiets":   "#185FA5",
+        "bus":     "#2f7d32",
+        "auto":    "#b3261e",
+        "te voet": "#f0a500"
+    }
+    FALLBACK_KLEUREN = ["#9b59b6", "#1abc9c", "#e67e22", "#2ecc71"]
+    # ─────────────────────────────────────────────────────────────────────────
+
+    donker_grijs = "#333333"
+
+    # Gegevens ophalen via de controller
+    overall_avg = view.controller.get_avg_distance_overall()
+    per_transport = view.controller.get_avg_distance_per_transport()
+
+    # ── LINKS: Informatie en Tabel ───────────────────────────────────────────
+    linker_frame = tk.Frame(parent, bg=grijs)
+    linker_frame.pack(side="left", fill="y", padx=20, pady=20)
+
+    # Kader voor de tabel
+    frame_tabel = maak_kader(linker_frame, titel=TITEL_TABEL, header_kleur=blauw)
+    frame_tabel.pack(anchor="nw", fill="x")
+
+    # Boven de tabel tonen we de algemene gemiddelde afstand in een opvallend label
+    info_frame = tk.Frame(frame_tabel, bg="white", padx=10, pady=10)
+    info_frame.pack(fill="x", before=None)
+
+    lbl_titel = tk.Label(
+        info_frame,
+        text="Algemeen gemiddelde (alle studenten):",
+        font=("Arial", 10, "bold"),
+        bg="white",
+        fg=donker_grijs
+    )
+    lbl_titel.pack(anchor="w")
+
+    lbl_waarde = tk.Label(
+        info_frame,
+        text=f"{overall_avg:.2f} km",
+        font=("Arial", 16, "bold"),
+        bg="white",
+        fg=blauw
+    )
+    lbl_waarde.pack(anchor="w", pady=(2, 10))
+
+    # Tabeldata opbouwen
+    tabel_rijen = [
+        (t_type.capitalize(), f"{avg:.2f} km")
+        for t_type, avg in per_transport
     ]
-    tabel = maak_tabel(frame2, kolommen=["Vervoersmiddel", "Aantal", "Percentage"], data=tabel_data)
-    tabel.column("Vervoersmiddel", width=130)
-    tabel.column("Aantal", width=80, anchor="center")
-    tabel.column("Percentage", width=90, anchor="center")
+
+    tabel = maak_tabel(
+        frame_tabel,
+        kolommen=["Vervoersmiddel", "Gem. afstand"],
+        data=tabel_rijen
+    )
+    tabel.column("Vervoersmiddel", width=150, anchor="w")
+    tabel.column("Gem. afstand", width=120, anchor="center")
+
+    # ── RECHTS: Grafiek (staafdiagram) ───────────────────────────────────────
+    rechter_frame = tk.Frame(parent, bg=grijs)
+    rechter_frame.pack(side="left", fill="both", expand=True, padx=(0, 20), pady=20)
+
+    frame_grafiek = maak_kader(rechter_frame, titel=TITEL_GRAFIEK, header_kleur=blauw)
+    frame_grafiek.pack(fill="both", expand=True)
+
+    grafiek_frame = tk.Frame(frame_grafiek, bg="white")
+    grafiek_frame.pack(fill="both", expand=True, padx=10, pady=10)
+
+    if not per_transport:
+        tk.Label(
+            grafiek_frame,
+            text="Geen data beschikbaar.",
+            bg="white",
+            font=("Arial", 11),
+            fg=donker_grijs
+        ).pack(pady=40)
+    else:
+        labels = [t_type.capitalize() for t_type, _ in per_transport]
+        waarden = [avg for _, avg in per_transport]
+
+        fig, ax = plt.subplots(figsize=(6, 4))
+        fig.patch.set_facecolor("white")
+
+        # Kleuren toewijzen op basis van vervoersmiddel
+        balk_kleuren = [
+            KLEUR_MAP.get(t_type.lower(), FALLBACK_KLEUREN[i % len(FALLBACK_KLEUREN)])
+            for i, (t_type, _) in enumerate(per_transport)
+        ]
+
+        balken = ax.bar(labels, waarden, color=balk_kleuren)
+
+        # Waarde boven elke balk tonen
+        for balk in balken:
+            hoogte = balk.get_height()
+            ax.text(
+                balk.get_x() + balk.get_width() / 2,
+                hoogte + 0.1,
+                f"{hoogte:.2f} km",
+                ha="center", va="bottom", fontsize=9, fontweight="bold", color=donker_grijs
+            )
+
+        # Horizontale referentielijn toevoegen voor de algemene gemiddelde afstand
+        ax.axhline(
+            overall_avg,
+            color=REFERENTIE_LIJN_KLEUR,
+            linestyle=REFERENTIE_LIJN_STIJL,
+            linewidth=1.5,
+            label=f"Algemeen gem. ({overall_avg:.2f} km)"
+        )
+
+        ax.set_title("Gemiddelde afstand tot school per vervoersmiddel", fontsize=11, fontweight="bold")
+        ax.set_xlabel(LABEL_X, fontsize=9)
+        ax.set_ylabel(LABEL_Y, fontsize=9)
+        ax.set_ylim(0, max(max(waarden) + 1.5, overall_avg + 1.5))
+        ax.legend(loc="upper right")
+        fig.tight_layout()
+
+        # Grafiek inbedden in Tkinter
+        canvas = FigureCanvasTkAgg(fig, master=grafiek_frame)
+        canvas.draw()
+        canvas.get_tk_widget().pack(fill="both", expand=True)
+
