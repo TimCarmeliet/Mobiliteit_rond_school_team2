@@ -1,6 +1,15 @@
 import sqlite3
 from pathlib import Path
 
+from logging_model import (
+    add_action_log,
+    create_logging_table,
+    get_action_count_by_type,
+    get_action_count_by_user,
+    get_action_logs,
+    get_most_active_users,
+)
+
 
 BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = BASE_DIR / "school.db"
@@ -51,6 +60,7 @@ class Model:
             status TEXT
         )
         """)
+        create_logging_table(self.conn)
 
         self.conn.commit()
 
@@ -363,3 +373,19 @@ class Model:
                 vervoer_status[transport_type][status] = vervoer_status[transport_type].get(status, 0) + 1
 
         return vervoer_status
+
+    # LOGGING UITBREIDING
+    def add_action_log(self, user_id, action_type):
+        add_action_log(self.conn, user_id, action_type)
+
+    def get_action_logs(self):
+        return get_action_logs(self.conn)
+
+    def get_action_count_by_user(self):
+        return get_action_count_by_user(self.conn)
+
+    def get_action_count_by_type(self):
+        return get_action_count_by_type(self.conn)
+
+    def get_most_active_users(self):
+        return get_most_active_users(self.conn)

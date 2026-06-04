@@ -7,6 +7,7 @@ from views.verplaatsing_view import toon_verplaatsing
 from views.dashboard_view import toon_dashboard
 from views.afwezigheid_view import toon_afwezigheid  # uitbreiding Viggo
 from views.analyse import toon_analyse
+from views.logging_view import toon_logging
 
 
 # kleur
@@ -45,6 +46,7 @@ class mainView:
         tk.Button(self.topnav, text="analyse", command=self.analyse, **self.styleButton).pack(side="left")
         # Uitbreiding Viggo: navigatieknop voor het afwezigheidsscherm
         tk.Button(self.topnav, text="afwezigheid", command=self.afwezigheid, **self.styleButton).pack(side="left")
+        tk.Button(self.topnav, text="logging", command=self.logging, **self.styleButton).pack(side="left")
 
         self.student_content = tk.Frame(self.root, bg=grijs)
         self.vervoer_content = tk.Frame(self.root, bg=grijs)
@@ -53,6 +55,7 @@ class mainView:
         self.analyse_content = tk.Frame(self.root, bg=grijs)
         # Uitbreiding Viggo: frame voor het afwezigheidsscherm
         self.afwezigheid_content = tk.Frame(self.root, bg=grijs)
+        self.logging_content = tk.Frame(self.root, bg=grijs)
 
         self.student()
 
@@ -63,6 +66,7 @@ class mainView:
         self.verplaatsing_content.forget()
         self.analyse_content.forget()
         self.afwezigheid_content.forget()  # uitbreiding Viggo
+        self.logging_content.forget()
 
     def _label_stijl(self):
         return {
@@ -103,9 +107,11 @@ class mainView:
         return True
 
     def student(self):
+        self.controller.log_view("student")
         toon_student(self, Tooltip)
 
     def vervoer(self):
+        self.controller.log_view("vervoer")
         self.clear_content()
         self.vervoer_content = tk.Frame(self.root, bg=grijs)
         self.vervoer_content.pack(fill="both", expand=True)
@@ -233,14 +239,22 @@ class mainView:
         tabel.bind("<<TreeviewSelect>>", on_select)
 
     def dashboard(self):
+        self.controller.log_view("dashboard")
         toon_dashboard(self)
 
     def afwezigheid(self):
         """Uitbreiding Viggo: laad het scherm voor aanwezigheidsbeheer."""
+        self.controller.log_view("afwezigheid")
         toon_afwezigheid(self)
 
     def verplaatsing(self):
+        self.controller.log_view("verplaatsing")
         toon_verplaatsing(self)
 
     def analyse(self):
+        self.controller.log_view("analyse")
         toon_analyse(self)
+
+    def logging(self):
+        self.controller.log_view("logging")
+        toon_logging(self)

@@ -14,6 +14,7 @@ Toont het hoofddashboard met drie tabbladen via ttk.Notebook:
 import tkinter as tk
 from tkinter import ttk                                   # voor het Notebook (tabbladen)
 from views.handy_view import maak_kader, maak_tabel
+from views.logging_dashboard import toon_logging_dashboard
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
@@ -55,6 +56,10 @@ def toon_dashboard(view):
     tab_afwezigheid = tk.Frame(notebook, bg=grijs)
     notebook.add(tab_afwezigheid, text="Afwezigheid & Aanwezigheid")
     _toon_afwezigheid_dashboard(view, tab_afwezigheid)
+
+    tab_logging = tk.Frame(notebook, bg=grijs)
+    notebook.add(tab_logging, text="Logging")
+    toon_logging_dashboard(view, tab_logging)
 
 
 # ── Tab 1: Vervoersmiddelen ───────────────────────────────────────────────────

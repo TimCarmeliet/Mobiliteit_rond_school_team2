@@ -4,6 +4,14 @@ from datetime import datetime
 class Controller:
     def __init__(self, model):
         self.model = model
+        self.current_user_id = None
+
+    def log_action(self, action_type):
+        if self.current_user_id:
+            self.model.add_action_log(self.current_user_id, action_type)
+
+    def log_view(self, page_name):
+        self.log_action("view")
 
     def _to_int(self, value, field_name):
         try:
@@ -43,6 +51,7 @@ class Controller:
             return "ERROR: Afstand mag niet negatief zijn"
 
         self.model.add_student(naam, klas, afstand)
+        self.log_action("create")
         return "Student succesvol toegevoegd"
 
     def get_students(self):
@@ -72,6 +81,7 @@ class Controller:
             return "ERROR: Afstand mag niet negatief zijn"
 
         self.model.update_student(student_id, naam, klas, afstand)
+        self.log_action("update")
         return "Student succesvol aangepast"
 
     def delete_student(self, student_id):
@@ -83,6 +93,7 @@ class Controller:
             return "ERROR: Student bestaat niet"
 
         self.model.delete_student(student_id)
+        self.log_action("delete")
         return "Student verwijderd"
 
     # TRANSPORT
@@ -96,6 +107,7 @@ class Controller:
             return "ERROR: Dit transporttype bestaat al"
 
         self.model.add_transport(transport_type)
+        self.log_action("create")
         return "Transport toegevoegd"
 
     def get_transport(self):
@@ -118,6 +130,7 @@ class Controller:
             return "ERROR: Dit transporttype bestaat al"
 
         self.model.update_transport(transport_id, transport_type)
+        self.log_action("update")
         return "Transport aangepast"
 
     def delete_transport(self, transport_id):
@@ -132,6 +145,7 @@ class Controller:
             return "ERROR: Dit transporttype wordt nog gebruikt bij verplaatsingen"
 
         self.model.delete_transport(transport_id)
+        self.log_action("delete")
         return "Transport verwijderd"
 
     # MOBILITY
@@ -142,6 +156,7 @@ class Controller:
 
         student_id, transport_id, datum = controle
         self.model.add_mobility(student_id, transport_id, datum)
+        self.log_action("create")
         return "Verplaatsing toegevoegd"
 
     def get_mobility(self):
@@ -164,6 +179,7 @@ class Controller:
 
         student_id, transport_id, datum = controle
         self.model.update_mobility(mobility_id, student_id, transport_id, datum)
+        self.log_action("update")
         return "Verplaatsing aangepast"
 
     def delete_mobility(self, mobility_id):
@@ -175,6 +191,7 @@ class Controller:
             return "ERROR: Verplaatsing bestaat niet"
 
         self.model.delete_mobility(mobility_id)
+        self.log_action("delete")
         return "Verplaatsing verwijderd"
 
     def _validate_mobility(self, student_id, transport_id, datum):
@@ -335,6 +352,7 @@ class Controller:
 
         student_id, datum, status = controle
         self.model.add_attendance(student_id, datum, status)
+        self.log_action("create")
         return "Aanwezigheid succesvol toegevoegd"
 
     def get_attendance(self):
@@ -365,6 +383,7 @@ class Controller:
 
         student_id, datum, status = controle
         self.model.update_attendance(attendance_id, student_id, datum, status)
+        self.log_action("update")
         return "Aanwezigheid succesvol aangepast"
 
     def delete_attendance(self, attendance_id):
@@ -377,6 +396,7 @@ class Controller:
             return "ERROR: Aanwezigheidsrecord bestaat niet"
 
         self.model.delete_attendance(attendance_id)
+        self.log_action("delete")
         return "Aanwezigheid verwijderd"
 
     # ── Datum-instellingen ────────────────────────────────────────────────────
@@ -454,3 +474,41 @@ class Controller:
     def get_vervoer_vs_aanwezigheid(self):
         """Geeft de relatie tussen vervoersmiddel en aanwezigheid terug als dictionary."""
         return self.model.get_vervoer_vs_aanwezigheid()
+
+
+
+
+
+    # LOGGING UITBREIDING
+    def start_logging(self, user_id):
+        user_id = user_id.strip() if user_id else ""
+        if not user_id:
+            return "ERROR: Geef een user_id in"
+
+        if self.current_user_id:
+            self.model.add_action_log(self.current_user_id, "logout")
+
+        self.current_user_id = user_id
+        self.model.add_action_log(self.current_user_id, "login")
+        return "Logging gestart"
+
+    def stop_logging(self):
+        if not self.current_user_id:
+            return "ERROR: Er is geen gebruiker ingelogd"
+
+        self.model.add_action_log(self.current_user_id, "logout")
+        self.current_user_id = None
+        return "Logging gestopt"
+
+    def get_current_user_id(self):
+        return self.current_user_id
+
+    def get_action_logs(self):
+        return self.model.get_action_logs()
+
+    def get_logging_analysis(self):
+        return {
+            "by_user": self.model.get_action_count_by_user(),
+            "by_type": self.model.get_action_count_by_type(),
+            "most_active": self.model.get_most_active_users(),
+        }
