@@ -1,5 +1,4 @@
 ignored/
 __pycache__/
 views/__pycache__/
-*.db
 *.pyc
