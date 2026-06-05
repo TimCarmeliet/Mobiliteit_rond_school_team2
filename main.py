@@ -10,7 +10,7 @@ def toon_foutmelding(exc_type, value, tb):
     
     # Formatteer de foutmelding en print naar de console
     err_msg = "".join(traceback.format_exception(exc_type, value, tb))
-    print("❌ FOUT GEDETECTEERD:\n", err_msg)
+    print(" FOUT GEDETECTEERD:\n", err_msg)
     
     # Vind de exacte plek van de fout
     tb_summary = traceback.extract_tb(tb)
