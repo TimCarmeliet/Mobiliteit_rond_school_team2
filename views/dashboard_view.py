@@ -10,7 +10,11 @@ from views.handy_view import maak_kader, maak_tabel
 
 # kleuren
 blauw = "#185FA5"
+rood = "#b3261e"
+groen = "#2f7d32"
 grijs = "#eee"
+donker_grijs = "#333333"
+licht_grijs = "#d8d8d8"
 
 # ── GRAFIEK INSTELLINGEN - makkelijk aanpasbaar 
 # Verander GRAFIEK_TYPE naar "balk" of "taart" om de grafiek te wisselen
